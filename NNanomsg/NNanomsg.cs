@@ -61,12 +61,30 @@ public partial class NNanomsg
 
     public static int GetSocketOpt(int s, int level, int option, ref int val)
     {
-        
+        IntPtr optval;
+        int optvallen;
+
+        int rc = UsingWindows
+                     ? Interop_Windows.nn_getsockopt(s, level, option, out optval, out optvallen)
+                     : Interop_Linux.nn_getsockopt(s, level, option, out optval, out optvallen);
+
+        val = Marshal.ReadInt32(optval);
+
+        return rc;
     }
 
-    public static int GetSocketOpt(int s, int level, int option, ref string val)
+    public static int GetSocketOpt(int s, int level, int option, out string val)
     {
-        
+        IntPtr optval;
+        int optvallen;
+
+        int rc = UsingWindows
+                     ? Interop_Windows.nn_getsockopt(s, level, option, out optval, out optvallen)
+                     : Interop_Linux.nn_getsockopt(s, level, option, out optval, out optvallen);
+
+        val = Marshal.PtrToStringAnsi(optval, optvallen);
+
+        return rc;
     }
 
     public static int Recv(int s, byte[] buf, int flags)

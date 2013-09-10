@@ -13,18 +13,19 @@ The advantages of wrapping the C API rather than implementing it entirely in a .
 The disadvantages are:
  1. It forces .NET applications that use the library to be platform dependent. 
  2. It means you have to bugger about with C compilers / native linking which depending on your luck and level of expertise has the potential to cause headaches.
- 3. I'm not sure which method is more efficient. Possibly there are gc isses related to pinned memory with this type of implementation. In my applications, I've never run into any practical problems however.
+ 3. I'm not sure which method is more efficient. Possibly there are GC isses related to pinned memory with this type of implementation. In my applications, I've never run into any practical problems however.
 
 
 ### Example
 
 A simple example is included in the source distribution.
 
+
 ### Development Status
 
 Partial Implementation of interface only. 
 
-Alpha quality.
+Alpha quality. 
 
 
 ### Building Notes
@@ -32,3 +33,4 @@ Alpha quality.
 Build nanomsg.dll and/or libnanomsg.so as instructed by the nanomsg.org website and make sure they can be found by the .NET runtime when you execute your application. I tend to include these libraries in my project and have them coppied automatically into the application directory when built.
 
 I've included a Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the test project.
+
