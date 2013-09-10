@@ -44,6 +44,31 @@ public partial class NNanomsg
         return UsingWindows ? Interop_Windows.nn_bind(s, addr + '\0') : Interop_Linux.nn_bind(s, addr + '\0');
     }
 
+    public static int SetSocketOpt(int s, int level, int option, string val)
+    {
+        // todo: unsure if \0 termination is necessary. remove if not.
+        return UsingWindows
+                   ? Interop_Windows.nn_setsockopt_string(s, level, option, val + '\0', val.Length)
+                   : Interop_Linux.nn_setsockopt_string(s, level, option, val + '\0', val.Length);
+    }
+
+    public static int SetSocketOpt(int s, int level, int option, int val)
+    {
+        return UsingWindows
+                   ? Interop_Windows.nn_setsockopt_int(s, level, option, ref val, sizeof(int))
+                   : Interop_Linux.nn_setsockopt_int(s, level, option, ref val, sizeof(int));        
+    }
+
+    public static int GetSocketOpt(int s, int level, int option, ref int val)
+    {
+        
+    }
+
+    public static int GetSocketOpt(int s, int level, int option, ref string val)
+    {
+        
+    }
+
     public static int Recv(int s, byte[] buf, int flags)
     {
         return UsingWindows

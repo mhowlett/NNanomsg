@@ -1,6 +1,6 @@
 ## NNanomsg
 
-This is a very lightweight wrapper around the Nanomsg C API which makes it callable from .NET languages.
+This is a very lightweight wrapper around the <a href="http://nanomsg.org">nanomsg.org</a> C API which makes it callable from .NET languages.
 
 It works (without recompiling) on both Windows and Linux (the latter using mono). 
 
@@ -16,13 +16,19 @@ The disadvantages are:
  3. I'm not sure which method is more efficient. Possibly there are gc isses related to pinned memory with this type of implementation. In my applications, I've never run into any practical problems however.
 
 
-# Example
+### Example
 
 A simple example is included in the source distribution.
 
+### Development Status
 
-# Building Notes
+Partial Implementation of interface only. 
 
-Build nanomsg.dll and/or libnanomsg.so as instructed by the <a href="http://nanomsg.org">nanomsg.org</a> and make sure they can be found by the .NET runtime when you execute your application. I tend to include these libraries in my project and have them coppied automatically into the application directory when built.
+Alpha quality.
+
+
+### Building Notes
+
+Build nanomsg.dll and/or libnanomsg.so as instructed by the nanomsg.org website and make sure they can be found by the .NET runtime when you execute your application. I tend to include these libraries in my project and have them coppied automatically into the application directory when built.
 
 I've included a Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the test project.
