@@ -19,7 +19,13 @@ public partial class NNanomsg
         [DllImport("libnanomsg.so")]
         public static extern int nn_recv(int s, byte[] buf, int len, int flags);
 
-        [DllImport("libnanomsg.so", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("libnanomsg.so")]
         public static extern int nn_errno();
+
+        [DllImport("libnanomsg.so")]
+        public static extern int nn_close(int s);
+
+        [DllImport("libnanomsg.so")]
+        public static extern int nn_shutdown(int s, int how);
     }
 }

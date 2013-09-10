@@ -8,7 +8,7 @@ So far, I have only implemented the subset of functionality that I need, however
 
 The advantages of wrapping the C API rather than implementing it entirely in a .NET language are:
  1. It is much less work. This means that:
- 2. I have written very little code in which to introduce bugs. All functionality is provided by the C implementation which should be well tested and tuned. This is an important point and it is something that worries me about using a library that offer API's in a large number of different languages - I wonder about the quality of all these implementations!
+ 2. I have written very little code in which to introduce bugs. All functionality is provided by the C implementation which should be well tested and tuned. This is an important point and it is something that worries me about using a library that offers API's in a large number of different languages - I wonder about the quality of all these implementations!
 
 The disadvantages are:
  1. It forces .NET applications that use the library to be platform dependent. 
@@ -24,3 +24,5 @@ A simple example is included in the source distribution.
 # Building Notes
 
 Build nanomsg.dll and/or libnanomsg.so as instructed by the <a href="http://nanomsg.org">nanomsg.org</a> and make sure they can be found by the .NET runtime when you execute your application. I tend to include these libraries in my project and have them coppied automatically into the application directory when built.
+
+I've included a Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the test project.

@@ -21,5 +21,11 @@ public partial class NNanomsg
 
         [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int nn_errno();
+
+        [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int nn_close(int s);
+
+        [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int nn_shutdown(int s, int how);
     }
 }

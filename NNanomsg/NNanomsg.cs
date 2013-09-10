@@ -63,6 +63,20 @@ public partial class NNanomsg
                    : Interop_Linux.nn_errno();
     }
 
+    public static int Close(int s)
+    {
+        return UsingWindows
+                   ? Interop_Windows.nn_close(s)
+                   : Interop_Linux.nn_close(s);
+    }
+
+    public static int Shutdown(int s, int how)
+    {
+        return UsingWindows
+                   ? Interop_Windows.nn_shutdown(s, how)
+                   : Interop_Linux.nn_shutdown(s, how);
+    }
+
     private static bool UsingWindows
     {
         get
