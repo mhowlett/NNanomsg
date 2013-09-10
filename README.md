@@ -12,8 +12,8 @@ The advantages of wrapping the C API rather than implementing it entirely in a .
 
 The disadvantages are:
  1. It forces .NET applications that use the library to be platform dependent. 
- 2. It meens you have to bugger about with C compilers / native linking which depending on your luck and level of expertise has the potential to cause headaches.
- 3. I'm not sure which method is more efficient. Possibly there are gc isses related to pinned memory with this type of implementation. In my applications, I've never run into any problems however.
+ 2. It means you have to bugger about with C compilers / native linking which depending on your luck and level of expertise has the potential to cause headaches.
+ 3. I'm not sure which method is more efficient. Possibly there are gc isses related to pinned memory with this type of implementation. In my applications, I've never run into any practical problems however.
 
 
 # Example
