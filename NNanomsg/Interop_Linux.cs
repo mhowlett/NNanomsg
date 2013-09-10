@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 public partial class NNanomsg
 {
@@ -27,5 +28,14 @@ public partial class NNanomsg
 
         [DllImport("libnanomsg.so")]
         public static extern int nn_shutdown(int s, int how);
+
+        [DllImport("libnanomsg.so")]
+        public static extern IntPtr nn_strerror(int errnum);
+
+        [DllImport("libnanomsg.so")]
+        public static extern int nn_device(int s1, int s2);
+        
+        [DllImport("libnanomsg.so")]
+        public static extern void nn_term();
     }
 }

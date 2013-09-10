@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 public partial class NNanomsg
 {
@@ -24,6 +25,7 @@ public partial class NNanomsg
     public const int NN_PROTO_REQREP = 3;
     public const int NN_REQ = NN_PROTO_REQREP*16 + 0;
     public const int NN_REP = NN_PROTO_REQREP*16 + 1;
+
 
     public static int Socket(int domain, int protocol)
     {
@@ -75,6 +77,32 @@ public partial class NNanomsg
         return UsingWindows
                    ? Interop_Windows.nn_shutdown(s, how)
                    : Interop_Linux.nn_shutdown(s, how);
+    }
+
+    public static int Device(int s1, int s2)
+    {
+        return UsingWindows
+                   ? Interop_Windows.nn_device(s1, s2)
+                   : Interop_Linux.nn_device(s1, s2);
+    }
+
+    public static void Term()
+    {
+        if (UsingWindows)
+        {
+            Interop_Windows.nn_term();
+        }
+        else
+        {
+            Interop_Linux.nn_term();
+        }
+    }
+
+    public static string StrError(int errnum)
+    {
+        return UsingWindows
+                   ? Marshal.PtrToStringAnsi(Interop_Windows.nn_strerror(errnum))
+                   : Marshal.PtrToStringAnsi(Interop_Linux.nn_strerror(errnum));
     }
 
     private static bool UsingWindows
