@@ -1,0 +1,8 @@
+.vagrant
+Debug
+NNanomsg/bin
+NNanomsg/obj
+Test/bin
+Test/obj
+*.user
+ipch
