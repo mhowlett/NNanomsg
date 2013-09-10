@@ -2,7 +2,7 @@
 
 This is a very lightweight wrapper around the Nanomsg C API which makes it callable from .NET languages.
 
-It works (without recompiling) on both Windows and Linux (using mono). 
+It works (without recompiling) on both Windows and Linux (the latter using mono). 
 
 So far, I have only implemented the subset of functionality that I need, however it should be relatively straight forward and not take very long to implement the rest of it (I may do this myself, at least a little more very soon).
 
