@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace NNanomsg
@@ -120,6 +121,13 @@ namespace NNanomsg
              */
         }
 
+        /// <summary>
+        ///     Receives a message into an already allocated buffer
+        ///     If the message is longer than the allocated buffer, it is truncated.
+        /// </summary>
+        /// <returns>
+        ///     The length, in bytes, of the message.
+        /// </returns>
         public static int Recv(int s, byte[] buf, SendRecvFlags flags)
         {
             return UsingWindows
@@ -127,6 +135,12 @@ namespace NNanomsg
                        : Interop_Linux.nn_recv(s, buf, buf.Length, (int)flags);
         }
 
+        /// <summary>
+        ///     Receives a message of unknown length into a new buffer.
+        /// </summary>
+        /// <returns>
+        ///     The error code from nn_freemsg. Should always be 0. Probably safe to ignore.
+        /// </returns>
         public static int Recv(int s, out byte[] buf, SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
@@ -134,13 +148,18 @@ namespace NNanomsg
                          ? Interop_Windows.nn_recv(s, out buffer, Constants.NN_MSG, (int)flags)
                          : Interop_Linux.nn_recv(s, out buffer, Constants.NN_MSG, (int)flags);
 
+            // this inefficient, I'm sure there must be a better way.
             buf = new byte[numberOfBytes];
             for (int i = 0; i < numberOfBytes; ++i)
             {
                 buf[i] = Marshal.ReadByte(buffer, i);
             }
 
-            return numberOfBytes;
+            int rc = UsingWindows
+                         ? Interop_Windows.nn_freemsg(buffer)
+                         : Interop_Windows.nn_freemsg(buffer);
+
+            return rc;
         }
 
         public static int Send(int s, byte[] buf, SendRecvFlags flags)

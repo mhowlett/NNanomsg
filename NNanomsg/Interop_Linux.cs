@@ -51,6 +51,9 @@ namespace NNanomsg
 
             [DllImport("libnanomsg.so", EntryPoint = "nn_getsockopt")]
             public static extern int nn_getsockopt_int(int s, int level, int option, ref int optval, ref int optvallen);
+
+            [DllImport("libnanomsg.so")]
+            public static extern int nn_freemsg(IntPtr msg);
         }
     }
 
