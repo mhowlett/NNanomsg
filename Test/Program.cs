@@ -1,4 +1,5 @@
 ﻿using System;
+using NNanomsg;
 
 namespace Test
 {
@@ -11,31 +12,31 @@ namespace Test
 
             if (args[0] == "client")
             {
-                int req = NNanomsg.Socket(NNanomsg.AF_SP, NNanomsg.NN_REQ);
-                int rc = NNanomsg.Connect(req, socketAddress);
+                int req = API.Socket(Domain.SP, Protocol.REQ);
+                int rc = API.Connect(req, socketAddress);
                 if (rc == -1)
                 {
-                    Console.WriteLine("There was an error connecting to '" + socketAddress + "': " + NNanomsg.StrError(NNanomsg.Errno()));
+                    Console.WriteLine("There was an error connecting to '" + socketAddress + "': " + API.StrError(API.Errno()));
                 }
-                NNanomsg.Send(req, new StringMessage("hello from client").GetBytes(), 0);
-                NNanomsg.Recv(req, buf, 0);
+                API.Send(req, new StringMessage("hello from client").GetBytes(), 0);
+                API.Recv(req, buf, 0);
                 Console.WriteLine("Message from SERVER: " + new StringMessage(buf).GetString());
                 Console.WriteLine("CLIENT finished");
-                NNanomsg.Close(req);
+                API.Close(req);
             }
             else if (args[0] == "server")
             {
-                int rep = NNanomsg.Socket(NNanomsg.AF_SP, NNanomsg.NN_REP);
-                int rc = NNanomsg.Bind(rep, socketAddress);
+                int rep = API.Socket(Domain.SP, Protocol.REP);
+                int rc = API.Bind(rep, socketAddress);
                 if (rc == -1)
                 {
-                    Console.WriteLine("There was an error binding to '" + socketAddress + "': " + NNanomsg.StrError(NNanomsg.Errno()));
+                    Console.WriteLine("There was an error binding to '" + socketAddress + "': " + API.StrError(API.Errno()));
                 }
-                NNanomsg.Recv(rep, buf, 0);
+                API.Recv(rep, buf, 0);
                 Console.WriteLine("Message from CLIENT: " + new StringMessage(buf).GetString());
-                NNanomsg.Send(rep, new StringMessage("hello from server").GetBytes(), 0);
+                API.Send(rep, new StringMessage("hello from server").GetBytes(), 0);
                 Console.WriteLine("SERVER Finished");
-                NNanomsg.Close(rep);
+                API.Close(rep);
             }
             else
             {

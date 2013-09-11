@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NNanomsg.cs" />
+    <Compile Include="API.cs" />
     <Compile Include="Interop_Linux.cs" />
     <Compile Include="Interop_Windows.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
