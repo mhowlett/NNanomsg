@@ -12,31 +12,31 @@ namespace Test
 
             if (args[0] == "client")
             {
-                int req = API.Socket(Domain.SP, Protocol.REQ);
-                int rc = API.Connect(req, socketAddress);
+                int req = NN.Socket(Domain.SP, Protocol.REQ);
+                int rc = NN.Connect(req, socketAddress);
                 if (rc == -1)
                 {
-                    Console.WriteLine("There was an error connecting to '" + socketAddress + "': " + API.StrError(API.Errno()));
+                    Console.WriteLine("There was an error connecting to '" + socketAddress + "': " + NN.StrError(NN.Errno()));
                 }
-                API.Send(req, new StringMessage("hello from client").GetBytes(), 0);
-                API.Recv(req, buf, 0);
+                NN.Send(req, new StringMessage("hello from client").GetBytes(), 0);
+                NN.Recv(req, buf, 0);
                 Console.WriteLine("Message from SERVER: " + new StringMessage(buf).GetString());
                 Console.WriteLine("CLIENT finished");
-                API.Close(req);
+                NN.Close(req);
             }
             else if (args[0] == "server")
             {
-                int rep = API.Socket(Domain.SP, Protocol.REP);
-                int rc = API.Bind(rep, socketAddress);
+                int rep = NN.Socket(Domain.SP, Protocol.REP);
+                int rc = NN.Bind(rep, socketAddress);
                 if (rc == -1)
                 {
-                    Console.WriteLine("There was an error binding to '" + socketAddress + "': " + API.StrError(API.Errno()));
+                    Console.WriteLine("There was an error binding to '" + socketAddress + "': " + NN.StrError(NN.Errno()));
                 }
-                API.Recv(rep, buf, 0);
+                NN.Recv(rep, buf, 0);
                 Console.WriteLine("Message from CLIENT: " + new StringMessage(buf).GetString());
-                API.Send(rep, new StringMessage("hello from server").GetBytes(), 0);
+                NN.Send(rep, new StringMessage("hello from server").GetBytes(), 0);
                 Console.WriteLine("SERVER Finished");
-                API.Close(rep);
+                NN.Close(rep);
             }
             else
             {

@@ -77,7 +77,7 @@ namespace NNanomsg
         public const int NN_BUS = NN_PROTO_BUS * 16 + 0;        
     }
 
-    public partial class API
+    public partial class NN
     {
         public static int Socket(Domain domain, Protocol protocol)
         {

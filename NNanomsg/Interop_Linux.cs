@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace NNanomsg
 {
-    public partial class API
+    public partial class NN
     {
         internal class Interop_Linux
         {
