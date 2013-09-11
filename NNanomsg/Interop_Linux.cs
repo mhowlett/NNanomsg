@@ -54,6 +54,9 @@ namespace NNanomsg
 
             [DllImport("libnanomsg.so")]
             public static extern int nn_freemsg(IntPtr msg);
+
+            [DllImport("libnanomsg.so")]
+            public static extern IntPtr nn_symbol(int i, out int value);
         }
     }
 

@@ -46,6 +46,7 @@
     <Compile Include="Test_GetSetOptions.cs" />
     <Compile Include="Test_Pair.cs" />
     <Compile Include="Test_ReqRep.cs" />
+    <Compile Include="Test_Symbol.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NNanomsg\NNanomsg.csproj">

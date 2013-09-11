@@ -13,7 +13,7 @@ namespace Test
             byte[] bs;
 
             var s = NN.Socket(Domain.SP, Protocol.REP);
-            var rc = NN.SetSocketOpt(s, SocketOptions.RCVTIMEO, 5000);
+            var rc = NN.SetSockOpt(s, SocketOptions.RCVTIMEO, 5000);
             Debug.Assert(rc >= 0);
             rc = NN.GetSockOpt(s, SocketOptions.RCVTIMEO, out v);
             Debug.Assert(rc >= 0);

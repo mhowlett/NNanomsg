@@ -23,7 +23,7 @@ namespace NNanomsg
             return UsingWindows ? Interop_Windows.nn_bind(s, addr + '\0') : Interop_Linux.nn_bind(s, addr + '\0');
         }
 
-        public static int SetSocketOpt(int s, SocketOptions option, string val)
+        public static int SetSockOpt(int s, SocketOptions option, string val)
         {
             // todo: unsure if \0 termination is necessary. remove if not.
             return UsingWindows
@@ -31,7 +31,7 @@ namespace NNanomsg
                        : Interop_Linux.nn_setsockopt_string(s, Constants.NN_SOL_SOCKET, (int)option, val + '\0', val.Length);
         }
 
-        public static int SetSocketOpt(int s, Protocol level, int option, string val)
+        public static int SetSockOpt(int s, Protocol level, int option, string val)
         {
             // todo: unsure if \0 termination is necessary. remove if not.
             return UsingWindows
@@ -39,14 +39,14 @@ namespace NNanomsg
                        : Interop_Linux.nn_setsockopt_string(s, (int)level, option, val + '\0', val.Length);
         }
 
-        public static int SetSocketOpt(int s,SocketOptions option, int val)
+        public static int SetSockOpt(int s,SocketOptions option, int val)
         {
             return UsingWindows
                        ? Interop_Windows.nn_setsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref val, sizeof(int))
                        : Interop_Linux.nn_setsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref val, sizeof(int));
         }
 
-        public static int SetSocketOpt(int s, Protocol level, int option, int val)
+        public static int SetSockOpt(int s, Protocol level, int option, int val)
         {
             return UsingWindows
                        ? Interop_Windows.nn_setsockopt_int(s, (int)level, option, ref val, sizeof(int))
@@ -194,9 +194,18 @@ namespace NNanomsg
 
         public static string StrError(int errnum)
         {
-            return UsingWindows
-                       ? Marshal.PtrToStringAnsi(Interop_Windows.nn_strerror(errnum))
-                       : Marshal.PtrToStringAnsi(Interop_Linux.nn_strerror(errnum));
+            return Marshal.PtrToStringAnsi(
+                UsingWindows
+                    ? Interop_Windows.nn_strerror(errnum)
+                    : Interop_Linux.nn_strerror(errnum));
+        }
+
+        public static string Symbol(int i, out int value)
+        {
+            return Marshal.PtrToStringAnsi(
+                UsingWindows
+                    ? Interop_Windows.nn_symbol(i, out value)
+                    : Interop_Linux.nn_symbol(i, out value));
         }
 
         private static bool UsingWindows

@@ -36,3 +36,4 @@ Build nanomsg.dll and/or libnanomsg.so as instructed by the nanomsg.org website 
 
 I've included a Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the test project.
 
+You will need to set the 'Platform Target' to x86 in any project that references NNanomsg.
