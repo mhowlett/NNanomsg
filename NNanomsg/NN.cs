@@ -40,6 +40,12 @@ namespace NNanomsg
         BUS = Constants.NN_BUS
     }
 
+    public enum SendRecvFlags
+    {
+        NONE = 0,
+        DONTWAIT = 1
+    }
+
     internal class Constants
     {
         public const int NN_DONTWAIT = 1;
@@ -139,18 +145,18 @@ namespace NNanomsg
             return rc;
         }
 
-        public static int Recv(int s, byte[] buf, int flags)
+        public static int Recv(int s, byte[] buf, SendRecvFlags flags)
         {
             return UsingWindows
-                       ? Interop_Windows.nn_recv(s, buf, buf.Length, flags)
-                       : Interop_Linux.nn_recv(s, buf, buf.Length, flags);
+                       ? Interop_Windows.nn_recv(s, buf, buf.Length, (int)flags)
+                       : Interop_Linux.nn_recv(s, buf, buf.Length, (int)flags);
         }
 
-        public static int Send(int s, byte[] buf, int flags)
+        public static int Send(int s, byte[] buf, SendRecvFlags flags)
         {
             return UsingWindows
-                       ? Interop_Windows.nn_send(s, buf, buf.Length, flags)
-                       : Interop_Linux.nn_send(s, buf, buf.Length, flags);
+                       ? Interop_Windows.nn_send(s, buf, buf.Length, (int)flags)
+                       : Interop_Linux.nn_send(s, buf, buf.Length, (int)flags);
         }
 
         public static int Errno()

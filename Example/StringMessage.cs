@@ -3,6 +3,9 @@ using System.Text;
 
 namespace Example
 {
+    /// <summary>
+    ///     Implements a simple message type that comprises a string and it's length.
+    /// </summary>
     public class StringMessage
     {
         private string _msg;
