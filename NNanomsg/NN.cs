@@ -48,7 +48,7 @@ namespace NNanomsg
 
     internal class Constants
     {
-        public const int NN_DONTWAIT = 1;
+        public const int NN_SOL_SOCKET = 0;
 
         // pair protocol related constants
         private const int NN_PROTO_PAIR = 1;
@@ -102,47 +102,110 @@ namespace NNanomsg
             return UsingWindows ? Interop_Windows.nn_bind(s, addr + '\0') : Interop_Linux.nn_bind(s, addr + '\0');
         }
 
-        public static int SetSocketOpt(int s, int level, int option, string val)
+        public static int SetSocketOpt(int s, SocketOptions option, string val)
         {
             // todo: unsure if \0 termination is necessary. remove if not.
             return UsingWindows
-                       ? Interop_Windows.nn_setsockopt_string(s, level, option, val + '\0', val.Length)
-                       : Interop_Linux.nn_setsockopt_string(s, level, option, val + '\0', val.Length);
+                       ? Interop_Windows.nn_setsockopt_string(s, Constants.NN_SOL_SOCKET, (int)option, val + '\0', val.Length)
+                       : Interop_Linux.nn_setsockopt_string(s, Constants.NN_SOL_SOCKET, (int)option, val + '\0', val.Length);
         }
 
-        public static int SetSocketOpt(int s, int level, int option, int val)
+        public static int SetSocketOpt(int s, Protocol level, int option, string val)
+        {
+            // todo: unsure if \0 termination is necessary. remove if not.
+            return UsingWindows
+                       ? Interop_Windows.nn_setsockopt_string(s, (int)level, option, val + '\0', val.Length)
+                       : Interop_Linux.nn_setsockopt_string(s, (int)level, option, val + '\0', val.Length);
+        }
+
+        public static int SetSocketOpt(int s,SocketOptions option, int val)
         {
             return UsingWindows
-                       ? Interop_Windows.nn_setsockopt_int(s, level, option, ref val, sizeof (int))
-                       : Interop_Linux.nn_setsockopt_int(s, level, option, ref val, sizeof (int));
+                       ? Interop_Windows.nn_setsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref val, sizeof(int))
+                       : Interop_Linux.nn_setsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref val, sizeof(int));
         }
 
-        public static int GetSocketOpt(int s, int level, int option, ref int val)
+        public static int SetSocketOpt(int s, Protocol level, int option, int val)
         {
-            IntPtr optval;
-            int optvallen;
+            return UsingWindows
+                       ? Interop_Windows.nn_setsockopt_int(s, (int)level, option, ref val, sizeof(int))
+                       : Interop_Linux.nn_setsockopt_int(s, (int)level, option, ref val, sizeof(int));
+        }
+
+        public static int GetSocketOpt(int s, SocketOptions option, out int val)
+        {
+            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
+            
+            int optvallen = 0;
+            IntPtr optval = Marshal.AllocHGlobal(sizeof(int));
 
             int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt(s, level, option, out optval, out optvallen)
-                         : Interop_Linux.nn_getsockopt(s, level, option, out optval, out optvallen);
+                         ? Interop_Windows.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, optval, ref optvallen)
+                         : Interop_Linux.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, optval, ref optvallen);
 
             val = Marshal.ReadInt32(optval);
+
+            Marshal.FreeHGlobal(optval);
 
             return rc;
         }
 
-        public static int GetSocketOpt(int s, int level, int option, out string val)
+        public static int GetSocketOpt(int s, Protocol level, int option, out int val)
         {
+            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
+            
+            /*
+            int optvallen;
+
+            int elementSize = 4;
+            IntPtr optval = Marshal.AllocHGlobal(1 * elementSize);
+
+            int rc = UsingWindows
+                         ? Interop_Windows.nn_getsockopt(s, (int)level, option, ref optval, out optvallen)
+                         : Interop_Linux.nn_getsockopt(s, (int)level, option, ref optval, out optvallen);
+
+            val = Marshal.ReadInt32(optval);
+
+            Marshal.FreeHGlobal(optval);
+
+            return rc;
+             */
+        }
+
+        public static int GetSocketOpt(int s, SocketOptions option, out string val)
+        {
+            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
+            
+            /*
             IntPtr optval;
             int optvallen;
 
             int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt(s, level, option, out optval, out optvallen)
-                         : Interop_Linux.nn_getsockopt(s, level, option, out optval, out optvallen);
+                         ? Interop_Windows.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, out optval, out optvallen)
+                         : Interop_Linux.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, out optval, out optvallen);
 
             val = Marshal.PtrToStringAnsi(optval, optvallen);
 
             return rc;
+             */
+        }
+
+        public static int GetSocketOpt(int s, Protocol level, int option, out string val)
+        {
+            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
+            
+            /*
+            IntPtr optval;
+            int optvallen;
+
+            int rc = UsingWindows
+                         ? Interop_Windows.nn_getsockopt(s, (int)level, option, out optval, out optvallen)
+                         : Interop_Linux.nn_getsockopt(s, (int)level, option, out optval, out optvallen);
+
+            val = Marshal.PtrToStringAnsi(optval, optvallen);
+
+            return rc;
+             */
         }
 
         public static int Recv(int s, byte[] buf, SendRecvFlags flags)

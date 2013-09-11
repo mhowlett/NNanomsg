@@ -7,7 +7,7 @@ namespace Test
         {
             Test_Pair.Execute();
             Test_ReqRep.Execute();
-
+            Test_GetSetOptions.Execute();
         }
     }
 }
