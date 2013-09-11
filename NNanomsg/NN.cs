@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace NNanomsg
@@ -117,9 +118,17 @@ namespace NNanomsg
         public static int Recv(int s, out byte[] buf, SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
-            int numberOfBytes = UsingWindows
+            int rc = UsingWindows
                          ? Interop_Windows.nn_recv(s, out buffer, Constants.NN_MSG, (int)flags)
                          : Interop_Linux.nn_recv(s, out buffer, Constants.NN_MSG, (int)flags);
+
+            if (rc < 0)
+            {
+                buf = null;
+                return rc;
+            }
+
+            int numberOfBytes = rc;
 
             // this inefficient, I'm sure there must be a better way.
             buf = new byte[numberOfBytes];
@@ -128,9 +137,11 @@ namespace NNanomsg
                 buf[i] = Marshal.ReadByte(buffer, i);
             }
 
-            int rc = UsingWindows
+            int rc2 = UsingWindows
                          ? Interop_Windows.nn_freemsg(buffer)
                          : Interop_Windows.nn_freemsg(buffer);
+
+            Debug.Assert(rc2 == 0);
 
             return rc;
         }

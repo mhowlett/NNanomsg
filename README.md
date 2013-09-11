@@ -1,6 +1,6 @@
 ## NNanomsg
 
-This is a very lightweight wrapper around the <a href="http://nanomsg.org">nanomsg.org</a> C API which makes it callable from .NET languages.
+This is a lightweight wrapper around the <a href="http://nanomsg.org">nanomsg.org</a> C API which makes it callable from .NET languages.
 
 It works (without recompiling) on both Windows and Linux (the latter using mono). 
 
@@ -18,7 +18,7 @@ The disadvantages are:
 
 ### Example
 
-A simple example is included in the source distribution.
+A simple C# example is included in the source distribution.
 
 
 ### Development Status
@@ -28,8 +28,6 @@ Partial Implementation of interface only.
 Tested against nanomsg version 0.1alpha only.
 
 Alpha quality. 
-
-Some effort needs to be put into better arranging things into namespaces.
 
 
 ### Building Notes
