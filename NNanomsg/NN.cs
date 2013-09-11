@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace NNanomsg
@@ -87,38 +86,12 @@ namespace NNanomsg
 
         public static int GetSocketOpt(int s, SocketOptions option, out string val)
         {
-            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
-            
-            /*
-            IntPtr optval;
-            int optvallen;
-
-            int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, out optval, out optvallen)
-                         : Interop_Linux.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, out optval, out optvallen);
-
-            val = Marshal.PtrToStringAnsi(optval, optvallen);
-
-            return rc;
-             */
+            throw new NotImplementedException("When I understand why the int version of this method isn't working, I'll implement this.");
         }
 
         public static int GetSocketOpt(int s, Protocol level, int option, out string val)
         {
-            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
-            
-            /*
-            IntPtr optval;
-            int optvallen;
-
-            int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt(s, (int)level, option, out optval, out optvallen)
-                         : Interop_Linux.nn_getsockopt(s, (int)level, option, out optval, out optvallen);
-
-            val = Marshal.PtrToStringAnsi(optval, optvallen);
-
-            return rc;
-             */
+            throw new NotImplementedException("When I understand why the int version of this method isn't working, I'll implement this.");
         }
 
         /// <summary>
