@@ -25,7 +25,11 @@ A simple example is included in the source distribution.
 
 Partial Implementation of interface only. 
 
+Tested against nanomsg version 0.1alpha only.
+
 Alpha quality. 
+
+Some effort needs to be put into better arranging things into namespaces.
 
 
 ### Building Notes
