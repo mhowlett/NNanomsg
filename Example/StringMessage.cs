@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Test
+namespace Example
 {
     public class StringMessage
     {

@@ -4,6 +4,8 @@ NNanomsg/bin
 NNanomsg/obj
 Test/bin
 Test/obj
+Example/bin
+Example/obj
 *.user
 ipch
 NNanomsg.v11.suo
