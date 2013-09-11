@@ -53,46 +53,42 @@ namespace NNanomsg
                        : Interop_Linux.nn_setsockopt_int(s, (int)level, option, ref val, sizeof(int));
         }
 
-        public static int GetSocketOpt(int s, SocketOptions option, out int val)
+        public static int GetSockOpt(int s, SocketOptions option, out int val)
         {
-            // for some reason this is not working, and I don't understand why. 
-
-            int optvallen = 0;
+            int optvallen = sizeof(int);
             int optval = 0;
 
             int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref optval, ref optvallen)
-                         : Interop_Linux.nn_getsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref optval, ref optvallen);
+                         ? Interop_Windows.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, ref optval, ref optvallen)
+                         : Interop_Linux.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, ref optval, ref optvallen);
 
             val = optval;
 
             return rc;
         }
 
-        public static int GetSocketOpt(int s, Protocol level, int option, out int val)
+        public static int GetSockOpt(int s, Protocol level, int option, out int val)
         {
-            // for some reason this is not working, and I don't understand why.
-
-            int optvallen = 0;
+            int optvallen = sizeof(int);
             int optval = 0;
 
             int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt_int(s, (int)level, option, ref optval, ref optvallen)
-                         : Interop_Linux.nn_getsockopt_int(s, (int)level, option, ref optval, ref optvallen);
+                         ? Interop_Windows.nn_getsockopt(s, (int)level, option, ref optval, ref optvallen)
+                         : Interop_Linux.nn_getsockopt(s, (int)level, option, ref optval, ref optvallen);
 
             val = optval;
 
             return rc;
         }
 
-        public static int GetSocketOpt(int s, SocketOptions option, out string val)
+        public static int GetSockOpt(int s, SocketOptions option, out string val)
         {
-            throw new NotImplementedException("When I understand why the int version of this method isn't working, I'll implement this.");
+            throw new NotImplementedException();
         }
 
-        public static int GetSocketOpt(int s, Protocol level, int option, out string val)
+        public static int GetSockOpt(int s, Protocol level, int option, out string val)
         {
-            throw new NotImplementedException("When I understand why the int version of this method isn't working, I'll implement this.");
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -115,6 +111,9 @@ namespace NNanomsg
         /// <returns>
         ///     The error code from nn_freemsg. Should always be 0. Probably safe to ignore.
         /// </returns>
+        /// <remarks>
+        ///     This is a bit inefficient at the moment.
+        /// </remarks>
         public static int Recv(int s, out byte[] buf, SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;

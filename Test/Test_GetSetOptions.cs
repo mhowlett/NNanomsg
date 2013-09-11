@@ -10,22 +10,18 @@ namespace Test
             const string inprocAddress = "inproc://getsetoption_test";
 
             int v;
-            byte[] bs = new byte[32];
+            byte[] bs;
 
             var s = NN.Socket(Domain.SP, Protocol.REP);
-            
             var rc = NN.SetSocketOpt(s, SocketOptions.RCVTIMEO, 5000);
             Debug.Assert(rc >= 0);
-            rc = NN.GetSocketOpt(s, SocketOptions.RCVTIMEO, out v);
+            rc = NN.GetSockOpt(s, SocketOptions.RCVTIMEO, out v);
             Debug.Assert(rc >= 0);
 
             NN.Bind(s, inprocAddress);
-            NN.Recv(s, bs, SendRecvFlags.NONE);
+            NN.Recv(s, out bs, SendRecvFlags.NONE);
 
             // setting the rcvtimeo works as expected.
-
-            // note: currently get option isn't working.
-
         }
     }
 }
