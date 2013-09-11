@@ -12,7 +12,7 @@ namespace Example
         static void Main(string[] args)
         {
             const string socketAddress = "tcp://127.0.0.1:5088";
-            var buf = new byte[32];
+            byte[] buf;
 
             if (args[0] == "client")
             {
@@ -23,7 +23,7 @@ namespace Example
                     Console.WriteLine("There was an error connecting to '" + socketAddress + "': " + NN.StrError(NN.Errno()));
                 }
                 NN.Send(req, new StringMessage("hello from client").GetBytes(), 0);
-                NN.Recv(req, buf, 0);
+                NN.Recv(req, out buf, 0);
                 Console.WriteLine("Message from SERVER: " + new StringMessage(buf).GetString());
                 Console.WriteLine("CLIENT finished");
                 NN.Close(req);
@@ -36,7 +36,7 @@ namespace Example
                 {
                     Console.WriteLine("There was an error binding to '" + socketAddress + "': " + NN.StrError(NN.Errno()));
                 }
-                NN.Recv(rep, buf, 0);
+                NN.Recv(rep, out buf, 0);
                 Console.WriteLine("Message from CLIENT: " + new StringMessage(buf).GetString());
                 NN.Send(rep, new StringMessage("hello from server").GetBytes(), 0);
                 Console.WriteLine("SERVER Finished");

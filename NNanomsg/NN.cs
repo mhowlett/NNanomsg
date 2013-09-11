@@ -3,86 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace NNanomsg
 {
-    public enum Domain
-    {
-        SP = 1,
-        SP_RAW = 2
-    }
-
-    public enum SocketOptions
-    {
-        LINGER = 1,
-        SNDBUF = 2,
-        RCVBUF = 3,
-        SNDTIMEO = 4,
-        RCVTIMEO = 5,
-        RECONNECT_IVL = 6,
-        RECONNECT_IVL_MAX = 7,
-        SNDPRIO = 8,
-        SNDFD = 10,
-        RCVFD = 11,
-        DOMAIN = 12,
-        PROTOCOL = 13,
-        IPV4ONLY = 14
-    }
-
-    public enum Protocol
-    {
-        PAIR = Constants.NN_PAIR,
-        PUB = Constants.NN_PUB,
-        SUB = Constants.NN_SUB,
-        REQ = Constants.NN_REQ,
-        REP = Constants.NN_REP,
-        PUSH = Constants.NN_PUSH,
-        PULL = Constants.NN_PULL,
-        SURVEYOR = Constants.NN_SURVEYOR,
-        RESPONDENT = Constants.NN_RESPONDENT,
-        BUS = Constants.NN_BUS
-    }
-
-    public enum SendRecvFlags
-    {
-        NONE = 0,
-        DONTWAIT = 1
-    }
-
-    internal class Constants
-    {
-        public const int NN_SOL_SOCKET = 0;
-
-        // pair protocol related constants
-        private const int NN_PROTO_PAIR = 1;
-        public const int NN_PAIR = NN_PROTO_PAIR * 16 + 0;
-
-        // pubsub protocol related constants
-        private const int NN_PROTO_PUBSUB = 2;
-        public const int NN_PUB = NN_PROTO_PUBSUB * 16 + 0;
-        public const int NN_SUB = NN_PROTO_PUBSUB * 16 + 1;
-        public const int NN_SUB_SUBSCRIBE = 1;
-        public const int NN_SUB_UNSUBSCRIBE = 2;
-
-        // reqrep protocol related constants
-        private const int NN_PROTO_REQREP = 3;
-        public const int NN_REQ = NN_PROTO_REQREP * 16 + 0;
-        public const int NN_REP = NN_PROTO_REQREP * 16 + 1;
-        public const int NN_REQ_RESEND_IVL = 1;
-
-        // pipeline protocol related constants
-        private const int NN_PROTO_PIPELINE = 5;
-        public const int NN_PUSH = NN_PROTO_PIPELINE * 16 + 0;
-        public const int NN_PULL = NN_PROTO_PIPELINE * 16 + 1;
-
-        // survey protocol related constants
-        private const int NN_PROTO_SURVEY = 6;
-        public const int NN_SURVEYOR = NN_PROTO_SURVEY * 16 + 0;
-        public const int NN_RESPONDENT = NN_PROTO_SURVEY * 16 + 1;
-        public const int NN_SURVEYOR_DEADLINE = 1;
-
-        // bus protocol related constants
-        private const int NN_PROTO_BUS = 7;
-        public const int NN_BUS = NN_PROTO_BUS * 16 + 0;        
-    }
-
     public partial class NN
     {
         public static int Socket(Domain domain, Protocol protocol)
@@ -134,42 +54,34 @@ namespace NNanomsg
 
         public static int GetSocketOpt(int s, SocketOptions option, out int val)
         {
-            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
-            
+            // for some reason this is not working, and I don't understand why. 
+
             int optvallen = 0;
-            IntPtr optval = Marshal.AllocHGlobal(sizeof(int));
+            int optval = 0;
 
             int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, optval, ref optvallen)
-                         : Interop_Linux.nn_getsockopt(s, Constants.NN_SOL_SOCKET, (int)option, optval, ref optvallen);
+                         ? Interop_Windows.nn_getsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref optval, ref optvallen)
+                         : Interop_Linux.nn_getsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref optval, ref optvallen);
 
-            val = Marshal.ReadInt32(optval);
-
-            Marshal.FreeHGlobal(optval);
+            val = optval;
 
             return rc;
         }
 
         public static int GetSocketOpt(int s, Protocol level, int option, out int val)
         {
-            throw new NotImplementedException("If anyone knows how to do the required marshalling on void * here, please let me know!");
-            
-            /*
-            int optvallen;
+            // for some reason this is not working, and I don't understand why.
 
-            int elementSize = 4;
-            IntPtr optval = Marshal.AllocHGlobal(1 * elementSize);
+            int optvallen = 0;
+            int optval = 0;
 
             int rc = UsingWindows
-                         ? Interop_Windows.nn_getsockopt(s, (int)level, option, ref optval, out optvallen)
-                         : Interop_Linux.nn_getsockopt(s, (int)level, option, ref optval, out optvallen);
+                         ? Interop_Windows.nn_getsockopt_int(s, (int)level, option, ref optval, ref optvallen)
+                         : Interop_Linux.nn_getsockopt_int(s, (int)level, option, ref optval, ref optvallen);
 
-            val = Marshal.ReadInt32(optval);
-
-            Marshal.FreeHGlobal(optval);
+            val = optval;
 
             return rc;
-             */
         }
 
         public static int GetSocketOpt(int s, SocketOptions option, out string val)
@@ -213,6 +125,22 @@ namespace NNanomsg
             return UsingWindows
                        ? Interop_Windows.nn_recv(s, buf, buf.Length, (int)flags)
                        : Interop_Linux.nn_recv(s, buf, buf.Length, (int)flags);
+        }
+
+        public static int Recv(int s, out byte[] buf, SendRecvFlags flags)
+        {
+            IntPtr buffer = IntPtr.Zero;
+            int numberOfBytes = UsingWindows
+                         ? Interop_Windows.nn_recv(s, out buffer, Constants.NN_MSG, (int)flags)
+                         : Interop_Linux.nn_recv(s, out buffer, Constants.NN_MSG, (int)flags);
+
+            buf = new byte[numberOfBytes];
+            for (int i = 0; i < numberOfBytes; ++i)
+            {
+                buf[i] = Marshal.ReadByte(buffer, i);
+            }
+
+            return numberOfBytes;
         }
 
         public static int Send(int s, byte[] buf, SendRecvFlags flags)

@@ -13,22 +13,22 @@ namespace Test
 
             const string inprocAddress = "inproc://reqrep_test";
 
-            var buffer1 = new byte[32];
-            var buffer2 = new byte[32];
+            byte[] buffer1;
+            byte[] buffer2;
 
             var clientThread = new Thread(
                 () => {
                     var req = NN.Socket(Domain.SP, Protocol.REQ);
                     NN.Connect(req, inprocAddress);
                     NN.Send(req, BitConverter.GetBytes((int) 42), SendRecvFlags.NONE);
-                    NN.Recv(req, buffer1, SendRecvFlags.NONE);
+                    NN.Recv(req, out buffer1, SendRecvFlags.NONE);
                     Debug.Assert(BitConverter.ToInt32(buffer1, 0) == 77);
                 });
             clientThread.Start();
 
             var rep = NN.Socket(Domain.SP, Protocol.REP);
             NN.Bind(rep, inprocAddress);
-            NN.Recv(rep, buffer2, SendRecvFlags.NONE);
+            NN.Recv(rep, out buffer2, SendRecvFlags.NONE);
             Debug.Assert(BitConverter.ToInt32(buffer2, 0) == 42);
             NN.Send(rep, BitConverter.GetBytes((int) 77), SendRecvFlags.NONE);
 

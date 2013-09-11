@@ -23,6 +23,9 @@ namespace NNanomsg
             public static extern int nn_recv(int s, byte[] buf, int len, int flags);
 
             [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
+            public static extern int nn_recv(int s, out IntPtr buf, int len, int flags);
+
+            [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
             public static extern int nn_errno();
 
             [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -46,8 +49,8 @@ namespace NNanomsg
             [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "nn_setsockopt")]
             public static extern int nn_setsockopt_int(int s, int level, int option, ref int optval, int optvallen);
 
-            [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
-            public static extern int nn_getsockopt(int s, int level, int option, IntPtr optval, ref int optvallen);
+            [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "nn_getsockopt")]
+            public static extern int nn_getsockopt_int(int s, int level, int option, ref int optval, ref int optvallen);
         }
     }
 }
