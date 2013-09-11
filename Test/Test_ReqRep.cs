@@ -31,6 +31,8 @@ namespace Test
             NN.Recv(rep, buffer2, SendRecvFlags.NONE);
             Debug.Assert(BitConverter.ToInt32(buffer2, 0) == 42);
             NN.Send(rep, BitConverter.GetBytes((int) 77), SendRecvFlags.NONE);
+
+            // TODO: Test connection of multiple REQ clients to a single REP server.
         }
     }
 }
