@@ -192,6 +192,20 @@ namespace NNanomsg
             }
         }
 
+        public static int[] Poll(int[] s, Events events, TimeSpan timeout)
+        {
+            var res = new int[s.Length];
+            if (UsingWindows)
+            {
+                Interop_Windows.nn_poll(s, s.Length, (int)events, (int)timeout.TotalMilliseconds, res);
+            }
+            else
+            {
+                Interop_Linux.nn_poll(s, s.Length, (int)events, (int)timeout.TotalMilliseconds, res);
+            }
+            return res;
+        }
+
         public static string StrError(int errnum)
         {
             return Marshal.PtrToStringAnsi(

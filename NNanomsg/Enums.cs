@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace NNanomsg
 {
     public enum Domain
@@ -47,6 +49,13 @@ namespace NNanomsg
     public enum Error
     {
         NONE = 0
+    }
+
+    [Flags]
+    public enum Events
+    {
+        IN = 0x01,
+        OUT = 0x02
     }
 
     internal class Constants

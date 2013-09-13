@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{2B391151-505A-4607-B624-35FD5E566B0C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nanomsgx", "nanomsgx\nanomsgx.vcxproj", "{C3E791EE-3964-460B-9A90-D254A94ADFCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,16 @@ Global
 		{2B391151-505A-4607-B624-35FD5E566B0C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2B391151-505A-4607-B624-35FD5E566B0C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2B391151-505A-4607-B624-35FD5E566B0C}.Release|Win32.ActiveCfg = Release|Any CPU
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Debug|Win32.Build.0 = Debug|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|Any CPU.ActiveCfg = Release|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|Win32.ActiveCfg = Release|Win32
+		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

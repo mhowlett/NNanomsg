@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace NNanomsg
@@ -53,10 +55,19 @@ namespace NNanomsg
             public static extern int nn_getsockopt(int s, int level, int option, ref int optval, ref int optvallen);
 
             [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
+            public static extern int nn_getsockopt(int s, int level, int option, ref IntPtr optval, ref int optvallen);
+
+            [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
+            public static extern int nn_getsockopt(int s, int level, int option, ref string optval, ref int optvallen);
+
+            [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
             public static extern int nn_freemsg(IntPtr msg);
 
             [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr nn_symbol (int i, out int value);
+
+            [DllImport("nanomsgx.dll", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void nn_poll(int[] s, int slen, int events, int timeout, int[] res);
         }
     }
 }
