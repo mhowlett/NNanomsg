@@ -8,7 +8,8 @@ runtime, it needs to be able to locate the native nanomsg library for your platf
 small extras library that is part of this distribution that implements simple polling functionality.
 
 NNanomsg is not quite complete, however it is useful for many use cases and it should be relatively straight 
-forward to implement the parts of the API .
+forward to implement the parts of the API that I've yet to complete (I'll probably do this at some point
+relatively soon).
 
 The advantages of wrapping the C API rather than implementing it entirely in a .NET language are:
  1. It is much less work. This means that:
@@ -36,7 +37,8 @@ Partial Implementation of interface only.
 
 Tested against nanomsg version 0.1alpha only.
 
-Early days, alpha quality. 
+Early days, alpha quality. I'd recommend coming back in a few days after I've incorporated it into my own
+project and given it a bit more testing...
 
 
 ### Building Notes
