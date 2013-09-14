@@ -138,7 +138,7 @@ namespace NNanomsg
 
             int rc2 = UsingWindows
                          ? Interop_Windows.nn_freemsg(buffer)
-                         : Interop_Windows.nn_freemsg(buffer);
+                         : Interop_Linux.nn_freemsg(buffer);
 
             Debug.Assert(rc2 == 0);
 
