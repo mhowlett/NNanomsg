@@ -192,16 +192,22 @@ namespace NNanomsg
             }
         }
 
-        public static int[] Poll(int[] s, Events events, TimeSpan timeout)
+        public static int[] Poll(int[] s, Events events, TimeSpan? timeout)
         {
+            int milliseconds = -1;
+            if (timeout != null)
+            {
+                milliseconds = (int) timeout.Value.TotalMilliseconds;
+            }
+
             var res = new int[s.Length];
             if (UsingWindows)
             {
-                Interop_Windows.nn_poll(s, s.Length, (int)events, (int)timeout.TotalMilliseconds, res);
+                Interop_Windows.nn_poll(s, s.Length, (int)events, milliseconds, res);
             }
             else
             {
-                Interop_Linux.nn_poll(s, s.Length, (int)events, (int)timeout.TotalMilliseconds, res);
+                Interop_Linux.nn_poll(s, s.Length, (int)events, milliseconds, res);
             }
             return res;
         }

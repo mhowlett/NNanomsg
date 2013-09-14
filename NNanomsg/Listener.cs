@@ -26,7 +26,7 @@ namespace NNanomsg
 
         public event ReceivedDelegate ReceivedMessage;
 
-        public void Listen(TimeSpan timeout)
+        public void Listen(TimeSpan? timeout)
         {
             var res = NN.Poll(_sockets, Events.IN, timeout);
             for (int i = 0; i < res.Length; ++i)
