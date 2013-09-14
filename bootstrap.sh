@@ -2,7 +2,7 @@
 
 # in the case a machine has already been provisioned, running this script shouldn't be a problem.
 
-apt-get install -y emacs
+apt-get install -y emacs23
 apt-get install -y mono-devel
 apt-get install -y mono-xbuild
 apt-get install -y g++

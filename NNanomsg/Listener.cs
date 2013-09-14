@@ -28,7 +28,7 @@ namespace NNanomsg
 
         public void Listen(TimeSpan timeout)
         {
-            var res = NN.Poll(_sockets, Events.IN | Events.OUT, timeout);
+            var res = NN.Poll(_sockets, Events.IN, timeout);
             for (int i = 0; i < res.Length; ++i)
             {
                 if (res[i] != 0)
@@ -37,5 +37,6 @@ namespace NNanomsg
                 }
             }
         }
+
     }
 }

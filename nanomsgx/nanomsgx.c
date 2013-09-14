@@ -4,7 +4,7 @@
 #include "nanomsgx.h"
 
 #include "nn.h"
-#include "utils/err.c"
+#include "../src/utils/err.c"
 
 #if defined NN_HAVE_WINDOWS
 #include "../src/utils/win.h"
@@ -23,8 +23,8 @@ NANOMSGX_API void nn_poll(int* s, int slen, int events, int timeout, int* res)
     SOCKET* rcvfd = (SOCKET *)malloc(slen * sizeof(SOCKET));
     SOCKET* sndfd = (SOCKET *)malloc(slen * sizeof(SOCKET));
 #else
-    int* rcvfd = (int *)malloc(ns * sizeof(int));
-    int* sndfd = (int *)malloc(ns * sizeof(int));
+    int* rcvfd = (int *)malloc(slen * sizeof(int));
+    int* sndfd = (int *)malloc(slen * sizeof(int));
     int maxfd;
 #endif
     size_t fdsz;

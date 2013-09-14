@@ -50,10 +50,6 @@ namespace Test
             {
                 listener.Listen(TimeSpan.FromMinutes(30));
             }
-
-
         }
-
-            
     }
 }

@@ -4,12 +4,22 @@
 // that uses this DLL. This way any other project whose source files include this file see 
 // NANOMSGX_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
-#ifdef NANOMSGX_EXPORTS
-#define NANOMSGX_API __declspec(dllexport)
+
+#if defined _WIN32
+#   if defined NANOMSGX_EXPORTS
+#       define NANOMSGX_API __declspec(dllexport)
+#   else
+#       define NANOMSGX_API __declspec(dllexport)
+#   endif
 #else
-#define NANOMSGX_API __declspec(dllimport)
+#   if defined __SUNPRO_C
+#       define NANOMSGX_API __global
+#   elif (defined __GNUC__ && __GNUC__ >= 4) || \
+          defined __INTEL_COMPILER || defined __clang__
+#       define NANOMSGX_API __attribute__ ((visibility("default")))
+#   else
+#       define NANOMSGX_API
+#   endif
 #endif
 
-NANOMSGX_API int fnnanomsgx(void);
-
-NANOMSGX_API int getevents (int s, int events, int timeout);
+//NANOMSGX_API int nn_poll (int s, int events, int timeout);

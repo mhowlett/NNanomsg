@@ -11,3 +11,4 @@ ipch
 NNanomsg.v11.suo
 NNanomsg.sdf
 NNanomsg.opensdf
+nanomsgx/*.o
