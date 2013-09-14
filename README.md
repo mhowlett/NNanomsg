@@ -5,8 +5,8 @@ it callable from .NET languages.
 
 The .NET library works without recompiling on both Windows and Linux (the latter using mono), however at 
 runtime, it needs to be able to locate the native nanomsg library for your platform as well as nanomsgx, a 
-small extras library that is part of this distribution that implements simple polling functionality, if
-you make use of this functionality.
+small extras library written in C that is part of this distribution which implements simple polling 
+functionality.
 
 NNanomsg is not quite complete, however it is useful for many use cases and it should be relatively straight 
 forward to implement the parts of the API that I've yet to complete (I'll probably do this at some point
