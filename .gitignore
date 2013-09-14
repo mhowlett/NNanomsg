@@ -12,3 +12,4 @@ NNanomsg.v11.suo
 NNanomsg.sdf
 NNanomsg.opensdf
 nanomsgx/*.o
+nanomsgx/libnanomsgx.so
