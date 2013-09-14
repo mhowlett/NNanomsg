@@ -5,7 +5,7 @@ it callable from .NET languages.
 
 The .NET library works without recompiling on both Windows and Linux (the latter using mono), however at 
 runtime, it needs to be able to locate the native nanomsg library for your platform as well as nanomsgx, a 
-small extras library that is part of NNanomsg that provides polling functionality.
+small extras library that is part of this distribution that implements simple polling functionality.
 
 NNanomsg is not quite complete, however it is useful for many use cases and it should be relatively straight 
 forward to implement the parts of the API .
@@ -47,8 +47,8 @@ them coppied automatically into the application directory when built.
 
 You will need to set the 'Platform Target' to x86 in any project that references NNanomsg.
 
-To build nanomsx, which is required for polling functionality, you will need to specify the path to the nanomsg 
-source directory as follows:
+To build nanomsx, which will be referenced if you try to use the polling functionality, you will need to specify
+the path to the nanomsg source directory as follows:
 
 On Windows, in Visual Studio:
   1. Select View/Other Windows/Property Manager
