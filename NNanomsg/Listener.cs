@@ -33,7 +33,10 @@ namespace NNanomsg
             {
                 if (res[i] != 0)
                 {
-                    ReceivedMessage(_sockets[i]);
+                    if (ReceivedMessage != null)
+                    {
+                        ReceivedMessage(_sockets[i]);
+                    }
                 }
             }
         }
