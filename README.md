@@ -5,12 +5,7 @@ it callable from .NET languages.
 
 The .NET library works without recompiling on both Windows and Linux (the latter using mono), however at 
 runtime, it needs to be able to locate the native nanomsg library for your platform as well as nanomsgx, a 
-small extras library written in C that is part of this distribution which implements simple polling 
-functionality.
-
-NNanomsg is not quite complete, however it is useful for many use cases and it should be relatively straight 
-forward to implement the parts of the API that I've yet to complete (I'll probably do this at some point
-relatively soon).
+small extras library written in C that is part of this distribution.
 
 The advantages of wrapping the C API rather than implementing it entirely in a .NET language are:
  1. It is much less work. This means that:
@@ -23,9 +18,7 @@ The disadvantages are:
  1. It forces .NET applications that use the library to be platform dependent. 
  2. It means you have to bugger about with C compilers / native linking which depending on your luck and level 
     of expertise has the potential to cause headaches.
- 3. I'm not sure which method is more efficient. Possibly there are GC isses related to pinned memory with this
-    type of implementation. In my applications, I've never run into any practical problems however.
-
+ 3. I'm not sure which method is more efficient. 
 
 ### Example
 
@@ -34,7 +27,7 @@ A simple C# example is included in the source distribution and you might also wa
 
 ### Development Status
 
-Partial Implementation of interface only. 
+Partial (but useful) implementation of interface only. 
 
 Tested against nanomsg version 0.1alpha only.
 
