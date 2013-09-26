@@ -34,6 +34,10 @@ Tested against nanomsg version 0.1alpha only.
 Early days, alpha quality. I'd recommend coming back in a few days after I've incorporated it into my own
 project and given it a bit more testing...
 
+Update: I've incorporated it into the system I'm working on and everything seems to work - superficially at
+least. I'm unable to give it a good workout yet because large messages seem to be getting corrupted during 
+transfer by nanomsg, and I haven't been able to resolve this issue yet.
+
 
 ### Building Notes
 
