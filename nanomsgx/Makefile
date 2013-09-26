@@ -2,7 +2,7 @@
 # Copyright (C) 2011 Matt Howlett <matt dot howlett at gmail dot com>
 # This file is released under an MIT license, see the LICENSE.txt file.
 
-NANOMSG_PATH=/opt/nanomsg-0.1-alpha/src
+NANOMSG_PATH=/opt/nanomsg-0.2-alpha/src
 NANOMSG_LIB_PATH=/usr/local/lib
 
 all: libnanomsgx
