@@ -5,6 +5,7 @@
 
 #include "nn.h"
 #include "../src/utils/err.c"
+#include <errno.h>
 
 #if defined NN_HAVE_WINDOWS
 #include "../src/utils/win.h"
@@ -84,7 +85,20 @@ NANOMSGX_API void nn_poll(int* s, int slen, int events, int timeout, int* res)
     wsa_assert (rc != SOCKET_ERROR);
 #else
     rc = select (maxfd, &pollset, NULL, NULL, timeout < 0 ? NULL : &tv);
-    errno_assert (rc >= 0);
+	if (rc < 0)
+	{
+		perror("select failed: ");
+		for (i=0; i<slen; ++i)
+		{
+			res[i] = 0;
+		}
+
+		free(rcvfd);
+		free(sndfd);
+
+		return;
+	}
+    //errno_assert (rc >= 0);
 #endif
 
 	for (i=0; i<slen; ++i)

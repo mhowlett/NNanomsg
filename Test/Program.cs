@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using NNanomsg;
-
+﻿
 namespace Test
 {
     class Program

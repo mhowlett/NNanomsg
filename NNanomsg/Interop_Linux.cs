@@ -58,7 +58,7 @@ namespace NNanomsg
             [DllImport("libnanomsg.so")]
             public static extern IntPtr nn_symbol(int i, out int value);
 
-            [DllImport("libnanomsgx.so", CallingConvention = CallingConvention.Cdecl)]
+            [DllImport("libnanomsgx.so")]
             public static extern void nn_poll(int[] s, int slen, int events, int timeout, int[] res);
         }
     }

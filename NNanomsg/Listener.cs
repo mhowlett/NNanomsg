@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 
 namespace NNanomsg
 {
@@ -26,9 +27,21 @@ namespace NNanomsg
 
         public event ReceivedDelegate ReceivedMessage;
 
+        [HandleProcessCorruptedStateExceptions]
         public void Listen(TimeSpan? timeout)
         {
-            var res = NN.Poll(_sockets, Events.IN, timeout);
+            int[] res = null;
+            try
+            {
+                res = NN.Poll(_sockets, Events.IN, timeout);
+            }
+            catch (Exception)
+            {
+                // I don't believe this ever happens.
+                Console.WriteLine("DEBUG: Poll threw exception, ignoring.");
+                return;
+            }
+
             for (int i = 0; i < res.Length; ++i)
             {
                 if (res[i] != 0)
