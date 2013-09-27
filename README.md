@@ -5,7 +5,7 @@ it callable from .NET languages.
 
 The .NET library works without recompiling on both Windows and Linux (the latter using mono), however at 
 runtime, it needs to be able to locate the native nanomsg library for your platform as well as nanomsgx, a 
-small library written in C that is part of this distribution that implements simple polling functionality.
+small library written in C that is part of this distribution that implements polling functionality.
 
 The advantages of wrapping the C API rather than implementing it entirely in a .NET language are:
  1. It is much less work. This means that:
@@ -29,13 +29,15 @@ A simple C# example is included in the source distribution and you might also wa
 
 ### Development Status
 
+Alpha quality. 
+
 Tested against nanomsg version 0.2-alpha only.
 
 sendmsg and recvmsg not yet implemented (but send and recv are). 
 
-Polling functionality could likely be implemented completely in managed code (get rid of the extra native library),
-and more properly integrated with the .NET runtime / ThreadPool. However elements of this are quit difficult, and 
-the present implementation works :-).
+Polling functionality could probably be implemented completely in managed code (thus getting rid of the extra 
+native library) and more properly integrated with the .NET runtime / ThreadPool. Some aspects of this task
+are quite difficult however and the present implementation works well enough for me and I suspect most people.
 
 I'd recommend checking back reltively frequently as I've yet to give it a good work out, but will be doing so over
 the coming weeks.
