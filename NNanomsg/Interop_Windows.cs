@@ -7,6 +7,7 @@ namespace NNanomsg
 {
     public partial class NN
     {
+        [System.Security.SuppressUnmanagedCodeSecurity]
         internal class Interop_Windows
         {
             [DllImport("Nanomsg.dll", CallingConvention = CallingConvention.Cdecl)]

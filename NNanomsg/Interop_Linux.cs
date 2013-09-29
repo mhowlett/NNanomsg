@@ -5,6 +5,7 @@ namespace NNanomsg
 {
     public partial class NN
     {
+        [System.Security.SuppressUnmanagedCodeSecurity]
         internal class Interop_Linux
         {
             [DllImport("libnanomsg.so")]
