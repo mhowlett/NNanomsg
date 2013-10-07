@@ -6,41 +6,34 @@ namespace Example
     class Program
     {
         /// <summary>
-        ///     A simple example showing use of NNanomsg.
+        ///     A simple example showing use of NNanomsg.Socket
         ///     For further example usage, check out the Test project.
         /// </summary>
         static void Main(string[] args)
         {
             const string socketAddress = "tcp://127.0.0.1:5088";
-            byte[] buf;
 
             if (args[0] == "client")
             {
-                int req = NN.Socket(Domain.SP, Protocol.REQ);
-                int rc = NN.Connect(req, socketAddress);
-                if (rc == -1)
+                using (var req = new Socket(Domain.SP, Protocol.REQ))
                 {
-                    Console.WriteLine("There was an error connecting to '" + socketAddress + "': " + NN.StrError(NN.Errno()));
+                    req.Connect(socketAddress);
+                    req.Send(new StringMessage("hello from client").GetBytes(), 0);
+                    var buf = req.Recv(0);
+                    Console.WriteLine("Message from SERVER: " + new StringMessage(buf).GetString());
+                    Console.WriteLine("CLIENT finished");
                 }
-                NN.Send(req, new StringMessage("hello from client").GetBytes(), 0);
-                NN.Recv(req, out buf, 0);
-                Console.WriteLine("Message from SERVER: " + new StringMessage(buf).GetString());
-                Console.WriteLine("CLIENT finished");
-                NN.Close(req);
             }
             else if (args[0] == "server")
             {
-                int rep = NN.Socket(Domain.SP, Protocol.REP);
-                int rc = NN.Bind(rep, socketAddress);
-                if (rc == -1)
+                using (var rep = new Socket(Domain.SP, Protocol.REP))
                 {
-                    Console.WriteLine("There was an error binding to '" + socketAddress + "': " + NN.StrError(NN.Errno()));
+                    rep.Bind(socketAddress);
+                    var buf = rep.Recv(0);
+                    Console.WriteLine("Message from CLIENT: " + new StringMessage(buf).GetString());
+                    rep.Send(new StringMessage("hello from server").GetBytes(), 0);
+                    Console.WriteLine("SERVER Finished");
                 }
-                NN.Recv(rep, out buf, 0);
-                Console.WriteLine("Message from CLIENT: " + new StringMessage(buf).GetString());
-                NN.Send(rep, new StringMessage("hello from server").GetBytes(), 0);
-                Console.WriteLine("SERVER Finished");
-                NN.Close(rep);
             }
             else
             {
