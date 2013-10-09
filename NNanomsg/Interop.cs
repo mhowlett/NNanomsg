@@ -29,31 +29,44 @@ namespace NNanomsg
         static NNLibraryLoader()
         {
             if (Environment.OSVersion.Platform.ToString().Contains("Win32"))
-                CustomLoadLibrary = n =>
-                    {
-                        var libFile = System.IO.Path.Combine(
-                            Environment.Is64BitProcess ? "x64" : "x86",
-                            n + ".dll");
-
-                        if (System.IO.File.Exists(libFile))
-                            LoadLibrary(libFile);
-                        else
-                            LoadLibrary(Path.GetFileName(libFile));
-                    };
+                CustomLoadLibrary = LoadWindowsLibrary;
             else if (Environment.OSVersion.Platform == PlatformID.Unix ||
                     Environment.OSVersion.Platform == PlatformID.MacOSX ||
                     (int)Environment.OSVersion.Platform == 128)
-                CustomLoadLibrary = n =>
-                    {
-                        const int RTLD_NOW = 2;
-                        var libFile = System.IO.Path.Combine(
-                            Environment.Is64BitProcess ? "x64" : "x86",
-                            "lib" + n + ".so");
-                        if (System.IO.File.Exists(libFile))
-                            dlopen(libFile, RTLD_NOW);
-                        else
-                            dlopen(Path.GetFileName(libFile), RTLD_NOW);
-                    };
+                CustomLoadLibrary = LoadPosixLibrary;
+        }
+
+        static void LoadWindowsLibrary(string libName)
+        {
+            string libFile = libName + ".dll";
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string fullPath = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
+
+            if (File.Exists(fullPath))
+                LoadLibrary(fullPath);
+            else
+            {
+                fullPath = Path.Combine(rootDirectory, libFile);
+                if (File.Exists(fullPath))
+                    LoadLibrary(fullPath);
+            }
+        }
+
+        static void LoadPosixLibrary(string libName)
+        {
+            const int RTLD_NOW = 2;
+            string libFile = "lib" + libName + ".so";
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string fullPath = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
+
+            if (File.Exists(fullPath))
+                dlopen(fullPath, RTLD_NOW);
+            else
+            {
+                fullPath = Path.Combine(rootDirectory, libFile);
+                if (File.Exists(fullPath))
+                    dlopen(fullPath, RTLD_NOW);
+            }
         }
 
         public static Action<string> CustomLoadLibrary { get; set; }

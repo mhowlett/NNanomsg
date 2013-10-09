@@ -19,12 +19,10 @@ namespace Test
                 {
                     var req = new NanoMsgSocket(Domain.SP, Protocol.REQ);
                     req.Connect(inprocAddress);
-                    //Thread.Sleep(TimeSpan.FromSeconds(3));
                     req.Send(new byte[] { 42, 0, 0, 0 });
                     using (var msgStream = req.Receive()) { }
                     var clientSend = BitConverter.GetBytes((int)42);
 
-                    //var iocp = CreateIoCompletionPort(new IntPtr(socket), IntPtr.Zero, UIntPtr.Zero, 0);
                     byte[] streamOutput = new byte[4];
 
                     while (true)
@@ -50,14 +48,6 @@ namespace Test
 
                 var serverSend = BitConverter.GetBytes((int)77);
                 byte[] streamOutput = new byte[4];
-
-                //while (true)
-                //{
-                //    var stream = rep.Receive();
-                //    stream.Read(streamOutput, 0, 4);
-                //    stream.Dispose();
-                //    rep.Send(serverSend);
-                //}
 
                 var listener = new Listener();
                 listener.AddSocket(rep.SocketID);

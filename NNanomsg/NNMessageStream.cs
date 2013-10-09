@@ -95,23 +95,9 @@ namespace NNanomsg
             }
         }
 
-        //internal unsafe static void memcpy(byte[] src, int srcIndex, byte* pDest, int destIndex, int len)
-        //{
-        //    if (len == 0)
-        //    {
-        //        return;
-        //    }
-        //    fixed (byte* ptr = src)
-        //    {
-        //        memcpyimpl(ptr + srcIndex / 1, pDest + destIndex / 1, len);
-        //    }
-        //}
-
-        
-
-        internal unsafe static void memcpyimpl(byte* src, byte* dest, int len)
+        unsafe static void CopyMemory(byte* src, byte* dest, int length)
         {
-            if (len >= 16)
+            if (length >= 16)
             {
                 do
                 {
@@ -120,55 +106,46 @@ namespace NNanomsg
                     dest += 16;
                     src += 16;
                 }
-                while ((len -= 16) >= 16);
+                while ((length -= 16) >= 16);
             }
-            if (len > 0)
+            if (length > 0)
             {
-                if ((len & 8) != 0)
+                if ((length & 8) != 0)
                 {
                     *(long*)dest = *(long*)src;
-                    dest += 8 / 1;
-                    src += 8 / 1;
+                    dest += 8;
+                    src += 8;
                 }
-                if ((len & 4) != 0)
+                if ((length & 4) != 0)
                 {
                     *(int*)dest = *(int*)src;
-                    dest += 4 / 1;
-                    src += 4 / 1;
+                    dest += 4;
+                    src += 4;
                 }
-                if ((len & 2) != 0)
+                if ((length & 2) != 0)
                 {
                     *(short*)dest = *(short*)src;
-                    dest += 2 / 1;
-                    src += 2 / 1;
+                    dest += 2;
+                    src += 2;
                 }
-                if ((len & 1) != 0)
+                if ((length & 1) != 0)
                 {
-                    byte* expr_75 = dest;
-                    dest = expr_75 + 1 / 1;
-                    byte* expr_7C = src;
-                    src = expr_7C + 1 / 1;
-                    *expr_75 = *expr_7C;
+                    byte* finalByte = dest;
+                    dest = finalByte + 1;
+                    byte* finalByteSrc = src;
+                    src = finalByteSrc + 1;
+                    *finalByte = *finalByteSrc;
                 }
             }
         }
-        internal unsafe static void memcpy(byte* src, int srcIndex, byte[] dest, int destIndex, int len)
+        
+        unsafe static void PinAndCopyMemory(byte* src, int srcIndex, byte[] dest, int destIndex, int len)
         {
             if (len == 0)
                 return;
 
             fixed (byte* ptr = dest)
-                memcpyimpl(src + srcIndex / 1, ptr + destIndex / 1, len);
-        }
-
-        internal unsafe static void memcpy_short(byte* src, int srcIndex, byte[] dest, int destIndex, int len)
-        {
-            if (len == 0)
-                return;
-
-            byte* srcOffset = src + srcIndex - destIndex;
-            for (int i = destIndex; i < len; i++)
-                dest[i] = *(srcOffset + i);
+                CopyMemory(src + srcIndex / 1, ptr + destIndex / 1, len);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -178,7 +155,7 @@ namespace NNanomsg
                 count = (int)remaining;
             if (count <= 0)
                 return 0;
-            memcpy(_buffer, (int)_position, buffer, offset, count);
+            PinAndCopyMemory(_buffer, (int)_position, buffer, offset, count);
             _position += count;
             return count;
         }
