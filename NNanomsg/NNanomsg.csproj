@@ -41,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
+    <Compile Include="Interop.cs" />
+    <Compile Include="NanoMsgSocket.cs" />
+    <Compile Include="NanoMsgSocketOptions.cs" />
+    <Compile Include="NNMessageStream.cs" />
     <Compile Include="NN.cs" />
     <Compile Include="Interop_Linux.cs" />
     <Compile Include="Interop_Windows.cs" />
