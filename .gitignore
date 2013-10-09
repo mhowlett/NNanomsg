@@ -13,3 +13,8 @@ NNanomsg.sdf
 NNanomsg.opensdf
 nanomsgx/*.o
 nanomsgx/libnanomsgx.so
+*.suo
+Release/
+Debug/
+*.vsp
+*.psess

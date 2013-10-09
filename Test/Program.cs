@@ -5,6 +5,8 @@ namespace Test
     {
         private static void Main(string[] args)
         {
+            //Test_Stream.Execute();
+            Test_SocketObject.Execute();
             Test_Listener.Execute();
             Test_Symbol.Execute();
             Test_Pair.Execute();

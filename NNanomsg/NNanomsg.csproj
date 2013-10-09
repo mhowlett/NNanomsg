@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -42,6 +43,10 @@
   <ItemGroup>
     <Compile Include="Enums.cs" />
     <Compile Include="NanomsgException.cs" />
+    <Compile Include="Interop.cs" />
+    <Compile Include="NanoMsgSocket.cs" />
+    <Compile Include="NanoMsgSocketOptions.cs" />
+    <Compile Include="NNMessageStream.cs" />
     <Compile Include="NN.cs" />
     <Compile Include="Interop_Linux.cs" />
     <Compile Include="Interop_Windows.cs" />
