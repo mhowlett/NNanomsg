@@ -39,8 +39,8 @@ Polling functionality could probably be implemented completely in managed code (
 native library) and more properly integrated with the .NET runtime / ThreadPool. Some aspects of this task
 are quite difficult however and the present implementation works well enough for me and I suspect most people.
 
-I'd recommend checking back reltively frequently as I've yet to give it a good work out, but will be doing so over
-the coming weeks.
+I've been using this quite a bit over the last week or so in a fairly large project that was previously using
+0mq. Everyhing seems to be running smoothly.
 
 
 ### Building Notes
