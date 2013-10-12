@@ -13,7 +13,7 @@ namespace NNanomsg
     /// 
     /// This uses the convention of a library being in:
     ///   Win32 - [architecture]/module.dll
-    ///   Linux - [architecture]/libmodule.so
+    ///   Posix - [architecture]/libmodule.so
     /// 
     /// If you want to use Mono's dllmap instead, initialize the CustomLoadLibrary property to null
     /// to prevent dynamic loading.
@@ -43,12 +43,18 @@ namespace NNanomsg
             string fullPath = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
 
             if (File.Exists(fullPath))
-                LoadLibrary(fullPath);
+            {
+                IntPtr result = LoadLibrary(fullPath);
+                Trace.Assert(result != IntPtr.Zero);
+            }
             else
             {
                 fullPath = Path.Combine(rootDirectory, libFile);
                 if (File.Exists(fullPath))
-                    LoadLibrary(fullPath);
+                {
+                    IntPtr result = LoadLibrary(fullPath);
+                    Trace.Assert(result != IntPtr.Zero);
+                }
             }
         }
 
@@ -113,7 +119,8 @@ namespace NNanomsg
         public static extern int nn_shutdown(int s, int how);
 
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        public static extern IntPtr nn_strerror(int errnum);
+        [return: MarshalAs(UnmanagedType.LPStr)]
+        public static extern string nn_strerror(int errnum);
 
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern int nn_device(int s1, int s2);
@@ -140,9 +147,10 @@ namespace NNanomsg
         public static extern int nn_freemsg(IntPtr msg);
 
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        public static extern IntPtr nn_symbol(int i, out int value);
+        [return: MarshalAs(UnmanagedType.LPStr)]
+        public  static  extern string  nn_symbol(int i, out int value);
 
-        [DllImport("nanomsgx", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        [DllImport("Nanomsgx", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern void nn_poll(int[] s, int slen, int events, int timeout, int[] res);
     }
 }

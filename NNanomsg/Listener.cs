@@ -33,6 +33,7 @@ namespace NNanomsg
             int[] res = null;
             try
             {
+                
                 res = NN.Poll(_sockets, Events.IN, timeout);
             }
             catch (Exception)

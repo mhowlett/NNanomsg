@@ -8,35 +8,45 @@ namespace Test
 {
     class Test_SocketObject
     {
+        static byte[] _clientData, _serverData;
+        const string InprocAddress = "inproc://127.0.0.1:6522";
+        const int DataSize = 1024 * 100, BufferSize = 1024 * 4;
+
         public static void Execute()
         {
-            Console.WriteLine("Executing Socket object test");
+            _clientData = new byte[DataSize];
+            _serverData = new byte[DataSize];
+            var r = new Random();
+            r.NextBytes(_clientData);
+            r.NextBytes(_serverData);
 
-            const string inprocAddress = "tcp://127.0.0.1:6522";
+            Console.WriteLine("Executing Socket object test");
 
             var clientThread = new Thread(
                 () =>
                 {
                     var req = new NanoMsgSocket(Domain.SP, Protocol.REQ);
-                    req.Connect(inprocAddress);
-                    req.Send(new byte[] { 42, 0, 0, 0 });
-                    using (var msgStream = req.Receive()) { }
-                    var clientSend = BitConverter.GetBytes((int)42);
-
-                    byte[] streamOutput = new byte[4];
-
+                    req.Connect(InprocAddress);
+                    byte[] streamOutput = new byte[BufferSize];
                     while (true)
                     {
                         var sw = Stopwatch.StartNew();
                         for (int i = 0; i < 10000; i++)
                         {
-                            req.SendImmediate(clientSend);
-                            var stream = req.Receive();
-                            stream.Read(streamOutput, 0, 4);
-                            stream.Dispose();
+                            var result = req.SendImmediate(_clientData);
+                            Trace.Assert(result);
+                            int read = 0;
+                            using (var stream = req.Receive())
+                                while (stream.Length != stream.Position)
+                                    read += stream.Read(streamOutput, 0, streamOutput.Length);
+                            Trace.Assert(read == _serverData.Length);
                         }
                         sw.Stop();
-                        Console.WriteLine(" Time " + (sw.Elapsed.TotalMilliseconds / 10000d).ToString());
+                        var secondsPerSend = sw.Elapsed.TotalSeconds/ 10000d;
+                        Console.WriteLine("Time {0} microsec, {1} per second, {2} mb/s ", 
+                            (int)(secondsPerSend * 1000d * 1000d), 
+                            (int)(1d / secondsPerSend),
+                            (int)(DataSize * 2d / (1024d * 1024d * secondsPerSend)));
                     }
 
                 });
@@ -44,20 +54,23 @@ namespace Test
 
             {
                 var rep = new NanoMsgSocket(Domain.SP, Protocol.REP);
-                rep.Bind(inprocAddress);
+                rep.Bind(InprocAddress);
 
-                var serverSend = BitConverter.GetBytes((int)77);
-                byte[] streamOutput = new byte[4];
+                byte[] streamOutput = new byte[BufferSize];
 
                 var listener = new Listener();
                 listener.AddSocket(rep.SocketID);
                 listener.ReceivedMessage += delegate(int s)
                 {
                     var stream = rep.ReceiveImmediate();
-                    if (stream == null) return;
-                    stream.Read(streamOutput, 0, 4);
+                    if (stream == null) { Trace.Fail("receive immediate failed"); return; }
+
+                    int read = 0;
+                    while (stream.Length != stream.Position)
+                        read += stream.Read(streamOutput, 0, streamOutput.Length);
                     stream.Dispose();
-                    rep.SendImmediate(serverSend);
+                    Trace.Assert(read == _clientData.Length);
+                    rep.SendImmediate(_serverData);
                 };
                 while (true)
                 {
