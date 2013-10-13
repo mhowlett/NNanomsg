@@ -8,36 +8,36 @@ using System.IO;
 
 namespace NNanomsg
 {
-    public struct NanoMsgEndpoint
+    public struct NanomsgEndpoint
     {
         public int ID;
     }
 
-    public class NanoMsgSocket : IDisposable
+    public class NanomsgSocket : IDisposable
     {
         const int NullSocket = -1;
 
         public Domain Domain { get; private set; }
         public Protocol Protocol { get; private set; }
-        public NanoMsgSocketOptions Options { get; private set; }
+        public NanomsgSocketOptions Options { get; private set; }
         public int SocketID { get { return _socket; } }
 
         int _socket = NullSocket;
-        INativeDisposer<NNMessageStream> _freeMessageDisposer;
-        NNMessageStream _recycledStream;
+        INativeDisposer<NanomsgReadStream> _freeMessageDisposer;
+        NanomsgReadStream _recycledStream;
 
         /// <summary>
         /// Initialize a new nanomsg socket for the given domain and protocol
         /// </summary>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if a socket can't be created for this domain and protocol</exception>
-        public NanoMsgSocket(Domain domain, Protocol protocol)
+        public NanomsgSocket(Domain domain, Protocol protocol)
         {
             Domain = domain;
             Protocol = protocol;
 
             _socket = Interop.nn_socket((int)Domain, (int)Protocol);
             if (_socket >= 0)
-                Options = new NanoMsgSocketOptions(_socket);
+                Options = new NanomsgSocketOptions(_socket);
             else
                 throw new NanomsgException(string.Format("nn_socket {0} {1}", domain, protocol));
         }
@@ -48,13 +48,13 @@ namespace NNanomsg
         /// <param name="address">The addr argument consists of two parts as follows: transport://address. The transport specifies the underlying transport protocol to use. The meaning of the address part is specific to the underlying transport protocol.</param>
         /// <returns>An endpoint identifier which can be used to reference the connected endpoint in the future</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the address is invalid</exception>
-        public NanoMsgEndpoint Connect(string address)
+        public NanomsgEndpoint Connect(string address)
         {
             int endpoint = -1;
             endpoint = Interop.nn_connect(_socket, address);
 
             if (endpoint > 0)
-                return new NanoMsgEndpoint() { ID = endpoint };
+                return new NanomsgEndpoint() { ID = endpoint };
             else
                 throw new NanomsgException("nn_connect " + address);
 
@@ -66,13 +66,13 @@ namespace NNanomsg
         /// <param name="address">The addr argument consists of two parts as follows: transport://address. The transport specifies the underlying transport protocol to use. The meaning of the address part is specific to the underlying transport protocol.</param>
         /// <returns>An endpoint identifier which can be used to reference the bound endpoint in the future</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the address is invalid</exception>
-        public NanoMsgEndpoint Bind(string address)
+        public NanomsgEndpoint Bind(string address)
         {
             int endpoint = -1;
             endpoint = Interop.nn_bind(_socket, address);
 
             if (endpoint > 0)
-                return new NanoMsgEndpoint() { ID = endpoint };
+                return new NanomsgEndpoint() { ID = endpoint };
             else
                 throw new NanomsgException("nn_bind " + address);
         }
@@ -83,7 +83,7 @@ namespace NNanomsg
         /// <param name="endpoint">The endpoint created by Connect or Bind which is being shut down.</param>
         /// <returns>True if the endpoint was shut down, false if the shutdown attempt was interrupted and should be reattempted.</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state or the endpoint's shutdown attempt was interrupted and should be reattempted.</exception>
-        public bool Shutdown(NanoMsgEndpoint endpoint)
+        public bool Shutdown(NanomsgEndpoint endpoint)
         {
             const int ValidShutdownResult = 0, MaxShutdownAttemptCount = 5;
             int attemptCount = 0;
@@ -94,7 +94,7 @@ namespace NNanomsg
                     int error = Interop.nn_errno();
 
                     // if we were interrupted by a signal, reattempt is allowed by the native library
-                    if (error == NanoMsgSymbols.EINTR)
+                    if (error == NanomsgSymbols.EINTR)
                     {
                         if (attemptCount++ >= MaxShutdownAttemptCount)
                             return false;
@@ -138,7 +138,7 @@ namespace NNanomsg
                         int error = Interop.nn_errno();
 
                         // if we were interrupted by a signal, reattempt is allowed by the native library
-                        if (error == NanoMsgSymbols.EINTR)
+                        if (error == NanomsgSymbols.EINTR)
                         {
                             if (attemptCount++ >= MaxCloseAttemptCount)
                             {
@@ -162,7 +162,7 @@ namespace NNanomsg
                         }
                         else
                         {
-                            Debug.Assert(error == NanoMsgSymbols.EBADF);
+                            Debug.Assert(error == NanomsgSymbols.EBADF);
                             // currently the only non-interrupt errors are for invalid sockets, which can't be closed
                             if (disposing)
                                 throw new NanomsgException("nn_close " + socket.ToString(), error);
@@ -173,6 +173,14 @@ namespace NNanomsg
                     else break;
                 }
             }
+        }
+
+
+        internal unsafe void SendMessage(nn_msghdr* messageHeader)
+        {
+            int sentBytes = Interop.nn_sendmsg(_socket, messageHeader, (int)SendRecvFlags.NONE);
+            if (sentBytes < 0)
+                throw new NanomsgException("nn_send");
         }
 
         /// <summary>
@@ -201,7 +209,7 @@ namespace NNanomsg
             if (sentBytes < 0)
             {
                 int error = Interop.nn_errno();
-                if (error == NanoMsgSymbols.EAGAIN)
+                if (error == NanomsgSymbols.EAGAIN)
                     return false;
                 else
                     throw new NanomsgException("nn_send", error);
@@ -218,7 +226,7 @@ namespace NNanomsg
         /// </summary>
         /// <returns>The stream containing the message data.  This stream should be disposed in order to free the message resources.</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state, the receive was interrupted, or the receive timeout has expired</exception>
-        public System.IO.Stream Receive()
+        public NanomsgReadStream Receive()
         {
             var stream =  Receive(SendRecvFlags.NONE);
             if (stream == null)
@@ -232,13 +240,13 @@ namespace NNanomsg
         /// </summary>
         /// <returns>A stream with message data, or null if no message has currently been received.</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state, the receive was interrupted, or the receive timeout has expired</exception>
-        public System.IO.Stream ReceiveImmediate()
+        public NanomsgReadStream ReceiveImmediate()
         {
             var stream = Receive(SendRecvFlags.DONTWAIT);
             if (stream == null)
             {
                 int error = Interop.nn_errno();
-                if (error == NanoMsgSymbols.EAGAIN)
+                if (error == NanomsgSymbols.EAGAIN)
                     return null;
                 else 
                     throw new NanomsgException("nn_recv");
@@ -247,7 +255,7 @@ namespace NNanomsg
                 return stream;
         }
 
-        Stream Receive(SendRecvFlags flags)
+        NanomsgReadStream Receive(SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
             int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
@@ -269,29 +277,29 @@ namespace NNanomsg
             if (stream != null)
                 stream.Reinitialize(buffer, rc);
             else
-                stream = new NNMessageStream(buffer, rc,
-                    _freeMessageDisposer ?? (_freeMessageDisposer = new NanoMsgNativeDisposer() { Socket = this }));
+                stream = new NanomsgReadStream(buffer, rc,
+                    _freeMessageDisposer ?? (_freeMessageDisposer = new NanomsgNativeDisposer() { Socket = this }));
 
             return stream;
         }
 
-        void RecycleStream(NNMessageStream messageStream)
+        void RecycleStream(NanomsgReadStream messageStream)
         {
             _recycledStream = messageStream;
         }
 
-        class NanoMsgNativeDisposer : INativeDisposer<NNMessageStream>
+        class NanomsgNativeDisposer : INativeDisposer<NanomsgReadStream>
         {
-            public NanoMsgSocket Socket;
+            public NanomsgSocket Socket;
 
-            public void DisposeOf(IntPtr nativeResource, NNMessageStream owner)
+            public void DisposeOf(IntPtr nativeResource, NanomsgReadStream owner)
             {
                 Interop.nn_freemsg(nativeResource);
                 Socket.RecycleStream(owner);
             }
         }
 
-        ~NanoMsgSocket()
+        ~NanomsgSocket()
         {
             Dispose(false);
         }

@@ -20,13 +20,41 @@ namespace Test
             r.NextBytes(_clientData);
             r.NextBytes(_serverData);
 
-            Console.WriteLine("Executing Socket object test");
+            Console.WriteLine("Executing Socket object test " + NanomsgSymbols.NN_VERSION_CURRENT.ToString());
 
             var clientThread = new Thread(
                 () =>
                 {
-                    var req = new NanoMsgSocket(Domain.SP, Protocol.REQ);
+                    var req = new NanomsgSocket(Domain.SP, Protocol.REQ);
                     req.Connect(InprocAddress);
+
+
+                    /*unsafe
+                    {
+                        byte* s1 = (byte*)Interop.nn_allocmsg(4, 0), s2 = (byte*) Interop.nn_allocmsg(4,0);
+                        *(uint*)s1 = 0x01020304;
+                        *(uint*)s2 = 0x05060708;
+                        //byte[] scatter1 = new byte[] { 1, 2, 3, 4 }, scatter2 = new byte[] { 5, 6, 7, 8 };
+                        //fixed (byte* s1 = scatter1, s2 = scatter2)
+                        {
+                            nn_iovec* iovecs = stackalloc nn_iovec[2];
+                            *iovecs = new nn_iovec() { iov_base = s1, iov_len = 4 };
+                            *(iovecs + 1) = new nn_iovec() { iov_base = s2, iov_len = 4 };
+                            nn_msghdr* msghdr = stackalloc nn_msghdr[1];
+                            *msghdr = new nn_msghdr()
+                            {
+                                msg_control = null,
+                                msg_controllen = 0,
+                                msg_iov = iovecs,
+                                msg_iovlen = 2
+                            };
+
+                            req.SendMessage(msghdr);
+                        }
+                        Interop.nn_freemsg((IntPtr)s1);
+                        Interop.nn_freemsg((IntPtr)s2);
+                    }*/
+
                     byte[] streamOutput = new byte[BufferSize];
                     while (true)
                     {
@@ -42,23 +70,25 @@ namespace Test
                             Trace.Assert(read == _serverData.Length);
                         }
                         sw.Stop();
-                        var secondsPerSend = sw.Elapsed.TotalSeconds/ 10000d;
-                        Console.WriteLine("Time {0} microsec, {1} per second, {2} mb/s ", 
-                            (int)(secondsPerSend * 1000d * 1000d), 
+                        var secondsPerSend = sw.Elapsed.TotalSeconds / 10000d;
+                        Console.WriteLine("Time {0} microsec, {1} per second, {2} mb/s ",
+                            (int)(secondsPerSend * 1000d * 1000d),
                             (int)(1d / secondsPerSend),
                             (int)(DataSize * 2d / (1024d * 1024d * secondsPerSend)));
+
+
                     }
 
                 });
             clientThread.Start();
 
             {
-                var rep = new NanoMsgSocket(Domain.SP, Protocol.REP);
+                var rep = new NanomsgSocket(Domain.SP, Protocol.REP);
                 rep.Bind(InprocAddress);
 
                 byte[] streamOutput = new byte[BufferSize];
 
-                var listener = new Listener();
+                var listener = new NanomsgListener();
                 listener.AddSocket(rep.SocketID);
                 listener.ReceivedMessage += delegate(int s)
                 {

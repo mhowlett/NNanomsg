@@ -8,16 +8,16 @@ namespace NNanomsg
     /// <summary>
     /// Provides access to a sockets various settings.  Each read or write marshals to the native library, so avoid preventable property access.
     /// </summary>
-    public class NanoMsgSocketOptions
+    public class NanomsgSocketOptions
     {
         int _socket, _level;
 
-        public NanoMsgSocketOptions(int socket, int level)
+        public NanomsgSocketOptions(int socket, int level)
         {
             _socket = socket;
             _level = level;
         }
-        public NanoMsgSocketOptions(int socket)
+        public NanomsgSocketOptions(int socket)
             : this(socket, Constants.NN_SOL_SOCKET)
         {
         }

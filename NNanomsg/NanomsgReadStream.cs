@@ -12,13 +12,13 @@ namespace NNanomsg
         void DisposeOf(IntPtr nativeResource, T owner);
     }
 
-    public unsafe class NNMessageStream : Stream
+    public unsafe class NanomsgReadStream : Stream
     {
         long _length, _position;
         byte* _buffer;
-        INativeDisposer<NNMessageStream> _disposer;
+        INativeDisposer<NanomsgReadStream> _disposer;
 
-        public NNMessageStream(IntPtr buffer, long length, INativeDisposer<NNMessageStream> disposer)
+        public NanomsgReadStream(IntPtr buffer, long length, INativeDisposer<NanomsgReadStream> disposer)
         {
             if (buffer == null)
                 throw new ArgumentNullException("buffer");

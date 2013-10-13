@@ -31,8 +31,9 @@ namespace NNanomsg
         public static string ErrorCodeToMessage(int errorCode)
         {
             string errorMessage;
-            if (!_errorMessages.TryGetValue(errorCode, out errorMessage))
-                errorMessage = _errorMessages[errorCode] = Interop.nn_strerror(errorCode);
+            lock (_errorMessages)
+                if (!_errorMessages.TryGetValue(errorCode, out errorMessage))
+                    errorMessage = _errorMessages[errorCode] = Marshal.PtrToStringAnsi(Interop.nn_strerror(errorCode));
             return errorMessage;
         }
 

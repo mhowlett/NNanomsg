@@ -28,7 +28,7 @@ namespace Test
                     {
                         byte[] buffer = new byte[bufferSize];
                         for (int i = 0; i < IterationCount; i++)
-                            using (var stream = new NNMessageStream((IntPtr)srcptr, src.Length, null))
+                            using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                             {
                                 int read;
                                 do
@@ -45,7 +45,7 @@ namespace Test
                     foreach (var bufferSize in bufferSizes)
                     {
                         for (int i = 0; i < IterationCount; i++)
-                            using (var stream = new NNMessageStream((IntPtr)srcptr, src.Length, null))
+                            using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                                 while (stream.ReadByte() >= 0) {}
                     }
             });
@@ -56,7 +56,7 @@ namespace Test
                     foreach (var bufferSize in bufferSizes)
                     {
                         for (int i = 0; i < IterationCount; i++)
-                            using (var stream = new NNMessageStream((IntPtr)srcptr, src.Length, null))
+                            using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                                 while (stream.ReadInt32().HasValue) { }
                     }
             });
@@ -68,7 +68,7 @@ namespace Test
                     foreach (var bufferSize in bufferSizes)
                     {
                         for (int i = 0; i < IterationCount; i++)
-                            using (var stream = new NNMessageStream((IntPtr)srcptr, src.Length, null))
+                            using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                                 while (stream.ReadInt64().HasValue) { }
                     }
             });

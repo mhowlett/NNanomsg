@@ -5,7 +5,7 @@ using System.Runtime.ExceptionServices;
 
 namespace NNanomsg
 {
-    public class Listener
+    public class NanomsgListener
     {
         private int[] _sockets = new int[0];
 

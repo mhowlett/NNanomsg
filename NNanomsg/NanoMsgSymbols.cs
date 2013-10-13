@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace NNanomsg
 {
-    public static class NanoMsgSymbols
+    public static class NanomsgSymbols
     {
-        static NanoMsgSymbols()
+        static NanomsgSymbols()
         {
-            Type thisType = typeof(NanoMsgSymbols);
+            Type thisType = typeof(NanomsgSymbols);
             for (int i = 0; ; ++i)
             {
                 int value;
@@ -20,7 +20,11 @@ namespace NNanomsg
                     break;
 
                 FieldInfo field =  thisType.GetField(symbolText, BindingFlags.Static | BindingFlags.Public);
-                field.SetValue(null, value);
+
+                if (field != null)
+                    field.SetValue(null, value);
+                else
+                    System.Diagnostics.Debug.Fail("Unused symbol " + symbolText);
             }
         }
 
@@ -96,6 +100,5 @@ namespace NNanomsg
             ENETRESET,
             ENETUNREACH,
             ENOTCONN;
-
     }
 }
