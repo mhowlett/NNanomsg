@@ -8,17 +8,33 @@ using System.IO;
 
 namespace NNanomsg
 {
+    [StructLayout(LayoutKind.Sequential)]
+    unsafe struct nn_iovec
+    {
+        public void* iov_base;
+        public int iov_len;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    unsafe struct nn_msghdr
+    {
+        public nn_iovec* msg_iov;
+        public int msg_iovlen;
+        public void* msg_control;
+        public int msg_controllen;
+    }
+
     /// <summary>
     /// This class can allow platforms to provide a custom method for loading the nanomsg library.
     /// 
     /// This uses the convention of a library being in:
     ///   Win32 - [architecture]/module.dll
-    ///   Linux - [architecture]/libmodule.so
+    ///   Posix - [architecture]/libmodule.so
     /// 
     /// If you want to use Mono's dllmap instead, initialize the CustomLoadLibrary property to null
     /// to prevent dynamic loading.
     /// </summary>
-    public static class NNLibraryLoader
+    public static class NanomsgLibraryLoader
     {
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern IntPtr LoadLibrary(string lpFileName);
@@ -26,7 +42,7 @@ namespace NNanomsg
         [DllImport("libdl.so")]
         static extern IntPtr dlopen(String fileName, int flags);
 
-        static NNLibraryLoader()
+        static NanomsgLibraryLoader()
         {
             if (Environment.OSVersion.Platform.ToString().Contains("Win32"))
                 CustomLoadLibrary = LoadWindowsLibrary;
@@ -43,12 +59,18 @@ namespace NNanomsg
             string fullPath = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
 
             if (File.Exists(fullPath))
-                LoadLibrary(fullPath);
+            {
+                IntPtr result = LoadLibrary(fullPath);
+                Trace.Assert(result != IntPtr.Zero);
+            }
             else
             {
                 fullPath = Path.Combine(rootDirectory, libFile);
                 if (File.Exists(fullPath))
-                    LoadLibrary(fullPath);
+                {
+                    IntPtr result = LoadLibrary(fullPath);
+                    Trace.Assert(result != IntPtr.Zero);
+                }
             }
         }
 
@@ -78,10 +100,10 @@ namespace NNanomsg
         static Interop()
         {
             // if a custom method is specified for loading these libraries, let it take over
-            if (NNLibraryLoader.CustomLoadLibrary != null)
+            if (NanomsgLibraryLoader.CustomLoadLibrary != null)
             {
-                NNLibraryLoader.CustomLoadLibrary("Nanomsg");
-                NNLibraryLoader.CustomLoadLibrary("Nanomsgx");
+                NanomsgLibraryLoader.CustomLoadLibrary("Nanomsg");
+                NanomsgLibraryLoader.CustomLoadLibrary("Nanomsgx");
             }
         }
 
@@ -112,6 +134,8 @@ namespace NNanomsg
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern int nn_shutdown(int s, int how);
 
+        // the return value can't be automatically marshalled to a string, as the framework tries to deallocate the pointer, which in this case is a literal
+        // use Marshal.PtrToStringAnsi
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern IntPtr nn_strerror(int errnum);
 
@@ -137,12 +161,22 @@ namespace NNanomsg
         public static extern int nn_getsockopt(int s, int level, int option, [MarshalAs(UnmanagedType.LPStr)] ref string optval, ref int optvallen);
 
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr nn_allocmsg(int size, int type);
+
+        [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern int nn_freemsg(IntPtr msg);
 
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        public static extern IntPtr nn_symbol(int i, out int value);
+        public static extern int nn_sendmsg(int s, nn_msghdr* msghdr, int flags);
 
-        [DllImport("nanomsgx", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern int nn_recvmsg(int s, nn_msghdr* msghdr, int flags);
+
+        [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        [return: MarshalAs(UnmanagedType.LPStr)]
+        public  static  extern string  nn_symbol(int i, out int value);
+
+        [DllImport("Nanomsgx", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern void nn_poll(int[] s, int slen, int events, int timeout, int[] res);
     }
 }

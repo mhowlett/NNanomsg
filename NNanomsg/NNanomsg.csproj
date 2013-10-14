@@ -43,17 +43,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
-    <Compile Include="NanomsgException.cs" />
     <Compile Include="Interop.cs" />
-    <Compile Include="NanoMsgSocket.cs" />
-    <Compile Include="NanoMsgSocketOptions.cs" />
-    <Compile Include="NNMessageStream.cs" />
+    <Compile Include="NanomsgException.cs" />
+    <Compile Include="NanomsgSocket.cs" />
+    <Compile Include="NanomsgSocketOptions.cs" />
+    <Compile Include="NanomsgSymbols.cs" />
+    <Compile Include="NanomsgReadStream.cs" />
     <Compile Include="NN.cs" />
-    <Compile Include="Interop_Linux.cs" />
-    <Compile Include="Interop_Windows.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Socket.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="nanomsg.dll">

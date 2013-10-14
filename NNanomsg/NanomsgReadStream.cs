@@ -12,13 +12,13 @@ namespace NNanomsg
         void DisposeOf(IntPtr nativeResource, T owner);
     }
 
-    public unsafe class NNMessageStream : Stream
+    public unsafe class NanomsgReadStream : Stream
     {
         long _length, _position;
         byte* _buffer;
-        INativeDisposer<NNMessageStream> _disposer;
+        INativeDisposer<NanomsgReadStream> _disposer;
 
-        public NNMessageStream(IntPtr buffer, long length, INativeDisposer<NNMessageStream> disposer)
+        public NanomsgReadStream(IntPtr buffer, long length, INativeDisposer<NanomsgReadStream> disposer)
         {
             if (buffer == null)
                 throw new ArgumentNullException("buffer");
@@ -95,6 +95,14 @@ namespace NNanomsg
             }
         }
 
+        /// <summary>
+        /// This isn't the fastest memory copy method for large reads (4k or above), but it has reliably good performance on all platforms.
+        /// 
+        /// This *is* the fastest method for reads up to around 512 bytes, on the platforms I tested.
+        /// 
+        /// Given that deserialization will be the most common consumption of this (protocol buffers and such), we will be far 
+        /// more likely to see many small reads.  We could consider swapping to a platform-specific bulk copy path for larger sizes.
+        /// </summary>
         unsafe static void CopyMemory(byte* src, byte* dest, int length)
         {
             if (length >= 16)
@@ -138,14 +146,14 @@ namespace NNanomsg
                 }
             }
         }
-        
+
         unsafe static void PinAndCopyMemory(byte* src, int srcIndex, byte[] dest, int destIndex, int len)
         {
             if (len == 0)
                 return;
 
             fixed (byte* ptr = dest)
-                CopyMemory(src + srcIndex / 1, ptr + destIndex / 1, len);
+                CopyMemory(src + srcIndex, ptr + destIndex, len);
         }
 
         public override int Read(byte[] buffer, int offset, int count)

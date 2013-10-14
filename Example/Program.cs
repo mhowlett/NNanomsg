@@ -1,5 +1,6 @@
 ﻿using System;
 using NNanomsg;
+using System.IO;
 
 namespace Example
 {
@@ -15,23 +16,23 @@ namespace Example
 
             if (args[0] == "client")
             {
-                using (var req = new Socket(Domain.SP, Protocol.REQ))
+                using (var req = new NanomsgSocket(Domain.SP, Protocol.REQ))
                 {
                     req.Connect(socketAddress);
-                    req.Send(new StringMessage("hello from client").GetBytes(), 0);
-                    var buf = req.Recv(0);
-                    Console.WriteLine("Message from SERVER: " + new StringMessage(buf).GetString());
+                    req.Send(new StringMessage("hello from client").GetBytes());
+                    using (var buf = req.Receive())
+                        Console.WriteLine("Message from SERVER: " + new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
                     Console.WriteLine("CLIENT finished");
                 }
             }
             else if (args[0] == "server")
             {
-                using (var rep = new Socket(Domain.SP, Protocol.REP))
+                using (var rep = new NanomsgSocket(Domain.SP, Protocol.REP))
                 {
                     rep.Bind(socketAddress);
-                    var buf = rep.Recv(0);
-                    Console.WriteLine("Message from CLIENT: " + new StringMessage(buf).GetString());
-                    rep.Send(new StringMessage("hello from server").GetBytes(), 0);
+                    using (var buf = rep.Receive())
+                        Console.WriteLine("Message from CLIENT: " + new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
+                    rep.Send(new StringMessage("hello from server").GetBytes());
                     Console.WriteLine("SERVER Finished");
                 }
             }

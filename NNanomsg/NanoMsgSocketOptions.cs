@@ -5,16 +5,19 @@ using System.Text;
 
 namespace NNanomsg
 {
-    public class NanoMsgSocketOptions
+    /// <summary>
+    /// Provides access to a sockets various settings.  Each read or write marshals to the native library, so avoid preventable property access.
+    /// </summary>
+    public class NanomsgSocketOptions
     {
         int _socket, _level;
 
-        public NanoMsgSocketOptions(int socket, int level)
+        public NanomsgSocketOptions(int socket, int level)
         {
             _socket = socket;
             _level = level;
         }
-        public NanoMsgSocketOptions(int socket)
+        public NanomsgSocketOptions(int socket)
             : this(socket, Constants.NN_SOL_SOCKET)
         {
         }
@@ -22,27 +25,35 @@ namespace NNanomsg
         TimeSpan? GetTimespan(SocketOptions opts)
         {
             int value = 0, size = sizeof(int);
-            Interop.nn_getsockopt(_socket, _level, (int)opts, ref value, ref size);
+            int result = Interop.nn_getsockopt(_socket, _level, (int)opts, ref value, ref size);
+            if (result != 0)
+                throw new NanomsgException(string.Format("nn_getsockopt {0}", opts));
             return value < 0 ? (TimeSpan?)null : TimeSpan.FromMilliseconds(value);
         }
 
         void SetTimespan(SocketOptions opts, TimeSpan? value)
         {
             int v = value.HasValue ? (int)value.Value.TotalMilliseconds : -1, size = sizeof(int);
-            Interop.nn_setsockopt_int(_socket, _level, (int)opts, ref v, size);
+            int result = Interop.nn_setsockopt_int(_socket, _level, (int)opts, ref v, size);
+            if (result != 0)
+                throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
         }
 
         int GetInt(SocketOptions opts)
         {
             int value = 0, size = sizeof(int);
-            Interop.nn_getsockopt(_socket, _level, (int)opts, ref value, ref size);
+            int result = Interop.nn_getsockopt(_socket, _level, (int)opts, ref value, ref size);
+            if (result != 0)
+                throw new NanomsgException(string.Format("nn_getsockopt {0}", opts));
             return value;
         }
 
         void SetInt(SocketOptions opts, int value)
         {
             int v = value, size = sizeof(int);
-            Interop.nn_setsockopt_int(_socket, _level, (int)opts, ref v, size);
+            int result = Interop.nn_setsockopt_int(_socket, _level, (int)opts, ref v, size);
+            if (result != 0)
+                throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace Test
             var rep = NN.Socket(Domain.SP, Protocol.REP);
             NN.Bind(rep, inprocAddress);
 
-            var listener = new Listener();
+            var listener = new NanomsgListener();
             listener.AddSocket(unused);
             listener.AddSocket(rep);
             listener.ReceivedMessage += delegate(int s)
