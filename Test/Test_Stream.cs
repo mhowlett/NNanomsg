@@ -13,18 +13,18 @@ namespace Test
 
         internal static void Execute()
         {
-            src = new byte[1024 * 1024 * 10];
+            src = new byte[1024 * 64];
             new Random().NextBytes(src);
 
-            var bufferSizes = Enumerable.Range(4, 1).Select(i => 1 << i);
-            const int IterationCount = 2;
-
-            Console.WriteLine("Buffers: " + string.Join(" ", bufferSizes));
-
-            Test("msgstream", () =>
+            var bufferSizes = Enumerable.Range(8,6).Select(i => 1 << i);
+            const int IterationCount = 100000;
+            foreach (var bufferSize in bufferSizes)
             {
-                fixed (byte* srcptr = src)
-                    foreach (var bufferSize in bufferSizes)
+                Console.WriteLine("Buffers: " + string.Join(" ", bufferSize));
+
+                Test("msgstream", () =>
+                {
+                    fixed (byte* srcptr = src)
                     {
                         byte[] buffer = new byte[bufferSize];
                         for (int i = 0; i < IterationCount; i++)
@@ -37,49 +37,56 @@ namespace Test
                                 } while (read > 0);
                             }
                     }
-            });
+                });
 
-            Test("msgstream_bytes", () =>
-            {
-                fixed (byte* srcptr = src)
-                    foreach (var bufferSize in bufferSizes)
+                /*Test("msgstream_bytes", () =>
+                {
+                    fixed (byte* srcptr = src)
+                    //foreach (var bufferSize in bufferSizes)
                     {
                         for (int i = 0; i < IterationCount; i++)
                             using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
-                                while (stream.ReadByte() >= 0) {}
+                                while (stream.ReadByte() >= 0) { }
                     }
-            });
+                });
 
-            Test("msgstream_int32", () =>
-            {
-                fixed (byte* srcptr = src)
-                    foreach (var bufferSize in bufferSizes)
+                Test("msgstream_int32", () =>
+                {
+                    fixed (byte* srcptr = src)
+                    //foreach (var bufferSize in bufferSizes)
                     {
                         for (int i = 0; i < IterationCount; i++)
                             using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                                 while (stream.ReadInt32().HasValue) { }
                     }
-            });
+                });
 
 
-            Test("msgstream_int64", () =>
-            {
-                fixed (byte* srcptr = src)
-                    foreach (var bufferSize in bufferSizes)
+                Test("msgstream_int64", () =>
+                {
+                    fixed (byte* srcptr = src)
+                    //foreach (var bufferSize in bufferSizes)
                     {
                         for (int i = 0; i < IterationCount; i++)
                             using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                                 while (stream.ReadInt64().HasValue) { }
                     }
-            });
+                });*/
 
-            
+                Test("writestream", () =>
+                    {
+                        for (int i = 0; i < IterationCount; i++)
+                            using (var dest = new NanomsgWriteStream(null))
+                                dest.Write(src, 0, src.Length);
+                    });
+
+            }
         }
 
         static void Test(string name, Action a)
         {
             a();
-            var duration = Enumerable.Range(1, 6).Select(
+            var duration = Enumerable.Range(1, 3).Select(
                 _ =>
                 {
                     var sw = Stopwatch.StartNew();

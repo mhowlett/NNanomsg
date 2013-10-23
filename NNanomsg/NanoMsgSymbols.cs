@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace NNanomsg
 {
@@ -14,7 +15,10 @@ namespace NNanomsg
             for (int i = 0; ; ++i)
             {
                 int value;
-                string symbolText = Interop.nn_symbol(i, out value);
+
+                var ptr = Interop.nn_symbol(i, out value);
+                
+                string symbolText = Marshal.PtrToStringAnsi(ptr);
 
                 if (symbolText == null)
                     break;

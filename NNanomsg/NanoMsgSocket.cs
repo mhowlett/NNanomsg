@@ -8,11 +8,6 @@ using System.IO;
 
 namespace NNanomsg
 {
-    public struct NanomsgEndpoint
-    {
-        public int ID;
-    }
-
     public class NanomsgSocket : IDisposable
     {
         const int NullSocket = -1;
@@ -23,8 +18,10 @@ namespace NNanomsg
         public int SocketID { get { return _socket; } }
 
         int _socket = NullSocket;
-        INativeDisposer<NanomsgReadStream> _freeMessageDisposer;
-        NanomsgReadStream _recycledStream;
+        INativeDisposer<NanomsgReadStream> _freeReadDisposer;
+        INativeDisposer<NanomsgWriteStream> _freeWriteDisposer;
+        NanomsgReadStream _recycledReadStream;
+        NanomsgWriteStream _recycledWriteStream;
 
         /// <summary>
         /// Initialize a new nanomsg socket for the given domain and protocol
@@ -221,6 +218,26 @@ namespace NNanomsg
             }
         }
 
+        public NanomsgWriteStream CreateSendStream()
+        {
+            return new NanomsgWriteStream(this);
+        }
+
+        public void SendStream(NanomsgWriteStream stream)
+        {
+            unsafe
+            {
+                int i = 0;
+                nn_iovec* iovec = stackalloc nn_iovec[i];
+                nn_msghdr* hdr = stackalloc nn_msghdr[1];
+            }
+        }
+
+        public bool SendStreamImmediate(NanomsgWriteStream stream)
+        {
+            return true;
+        }
+
         /// <summary>
         /// Blocks until a message is received, and then returns a stream containing its contents.
         /// </summary>
@@ -272,20 +289,20 @@ namespace NNanomsg
              * socket class for reuse.  
              */
 
-            var stream = Interlocked.Exchange(ref _recycledStream, null);
+            var stream = Interlocked.Exchange(ref _recycledReadStream, null);
 
             if (stream != null)
                 stream.Reinitialize(buffer, rc);
             else
                 stream = new NanomsgReadStream(buffer, rc,
-                    _freeMessageDisposer ?? (_freeMessageDisposer = new NanomsgNativeDisposer() { Socket = this }));
+                    _freeReadDisposer ?? (_freeReadDisposer = new NanomsgNativeDisposer() { Socket = this }));
 
             return stream;
         }
 
         void RecycleStream(NanomsgReadStream messageStream)
         {
-            _recycledStream = messageStream;
+            _recycledReadStream = messageStream;
         }
 
         class NanomsgNativeDisposer : INativeDisposer<NanomsgReadStream>

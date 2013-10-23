@@ -165,7 +165,7 @@ namespace NNanomsg
 
         public static string Symbol(int i, out int value)
         {
-            return Interop.nn_symbol(i, out value);
+            return Marshal.PtrToStringAnsi(Interop.nn_symbol(i, out value));
         }
     }
 

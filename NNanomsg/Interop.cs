@@ -173,8 +173,8 @@ namespace NNanomsg
         public static extern int nn_recvmsg(int s, nn_msghdr* msghdr, int flags);
 
         [DllImport("Nanomsg", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        [return: MarshalAs(UnmanagedType.LPStr)]
-        public  static  extern string  nn_symbol(int i, out int value);
+        //[return: MarshalAs(UnmanagedType.LPStr)]
+        public  static  extern IntPtr  nn_symbol(int i, out int value);
 
         [DllImport("Nanomsgx", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern void nn_poll(int[] s, int slen, int events, int timeout, int[] res);
