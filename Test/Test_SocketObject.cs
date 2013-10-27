@@ -9,8 +9,8 @@ namespace Test
     class Test_SocketObject
     {
         static byte[] _clientData, _serverData;
-        const string InprocAddress = "inproc://127.0.0.1:6522";
-        const int DataSize = 1024 * 100, BufferSize = 1024 * 4;
+        const string InprocAddress = "inproc://127.0.0.1:6520";
+        const int DataSize = TestConstants.DataSize, BufferSize = 1024 * 4, Iter = TestConstants.Iterations;
 
         public static void Execute()
         {
@@ -27,7 +27,7 @@ namespace Test
                 {
                     var req = new NanomsgSocket(Domain.SP, Protocol.REQ);
                     req.Connect(InprocAddress);
-
+                    //req.Options.TcpNoDelay = true;
 
                     /*unsafe
                     {
@@ -59,36 +59,44 @@ namespace Test
                     while (true)
                     {
                         var sw = Stopwatch.StartNew();
-                        for (int i = 0; i < 10000; i++)
+                        for (int i = 0; i < Iter; i++)
                         {
                             var result = req.SendImmediate(_clientData);
                             Trace.Assert(result);
                             int read = 0;
-                            using (var stream = req.Receive())
+                            using (var stream = req.ReceiveStream())
                                 while (stream.Length != stream.Position)
                                     read += stream.Read(streamOutput, 0, streamOutput.Length);
                             Trace.Assert(read == _serverData.Length);
                         }
                         sw.Stop();
-                        var secondsPerSend = sw.Elapsed.TotalSeconds / 10000d;
-                        Console.WriteLine("Time {0} microsec, {1} per second, {2} mb/s ",
+                        var secondsPerSend = sw.Elapsed.TotalSeconds / (double)Iter;
+                        Console.WriteLine("Time {0} us, {1} per second, {2} mb/s ",
                             (int)(secondsPerSend * 1000d * 1000d),
                             (int)(1d / secondsPerSend),
                             (int)(DataSize * 2d / (1024d * 1024d * secondsPerSend)));
-
-
                     }
-
                 });
             clientThread.Start();
 
             {
                 var rep = new NanomsgSocket(Domain.SP, Protocol.REP);
                 rep.Bind(InprocAddress);
+                //rep.Options.TcpNoDelay = true;
 
                 byte[] streamOutput = new byte[BufferSize];
 
-                var listener = new NanomsgListener();
+                var sw = Stopwatch.StartNew();
+                while (sw.Elapsed.TotalSeconds < 10)
+                {
+                    int read = 0;
+                    using (var stream = rep.ReceiveStream())
+                        while (stream.Length != stream.Position)
+                            read += stream.Read(streamOutput, 0, streamOutput.Length);
+                    rep.SendImmediate(_serverData);
+                }
+
+                /*var listener = new NanomsgListener();
                 listener.AddSocket(rep.SocketID);
                 listener.ReceivedMessage += delegate(int s)
                 {
@@ -102,10 +110,11 @@ namespace Test
                     Trace.Assert(read == _clientData.Length);
                     rep.SendImmediate(_serverData);
                 };
-                while (true)
-                {
-                    listener.Listen(TimeSpan.FromMinutes(30));
-                }
+
+                var sw = Stopwatch.StartNew();
+                while (sw.Elapsed.TotalSeconds < 10)
+                    listener.Listen(TimeSpan.FromSeconds(5));*/
+                clientThread.Abort();
             }
         }
     }

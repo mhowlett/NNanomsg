@@ -20,7 +20,7 @@ namespace Example
                 {
                     req.Connect(socketAddress);
                     req.Send(new StringMessage("hello from client").GetBytes());
-                    using (var buf = req.Receive())
+                    using (var buf = req.ReceiveStream())
                         Console.WriteLine("Message from SERVER: " + new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
                     Console.WriteLine("CLIENT finished");
                 }
@@ -30,7 +30,7 @@ namespace Example
                 using (var rep = new NanomsgSocket(Domain.SP, Protocol.REP))
                 {
                     rep.Bind(socketAddress);
-                    using (var buf = rep.Receive())
+                    using (var buf = rep.ReceiveStream())
                         Console.WriteLine("Message from CLIENT: " + new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
                     rep.Send(new StringMessage("hello from server").GetBytes());
                     Console.WriteLine("SERVER Finished");

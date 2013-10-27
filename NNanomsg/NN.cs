@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace NNanomsg
 {
-    public partial class NN
+    public static partial class NN
     {
         public static int Socket(Domain domain, Protocol protocol)
         {
@@ -21,7 +21,7 @@ namespace NNanomsg
             return Interop.nn_bind(s, addr);
         }
 
-        public static int SetSockOpt(int s, SocketOptions option, string val)
+        public static int SetSockOpt(int s, SocketOption option, string val)
         {
             return Interop.nn_setsockopt_string(s, Constants.NN_SOL_SOCKET, (int)option, val, val.Length);
         }
@@ -31,7 +31,7 @@ namespace NNanomsg
             return Interop.nn_setsockopt_string(s, (int)level, option, val, val.Length);
         }
 
-        public static int SetSockOpt(int s, SocketOptions option, int val)
+        public static int SetSockOpt(int s, SocketOption option, int val)
         {
             return Interop.nn_setsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref val, sizeof(int));
         }
@@ -41,7 +41,7 @@ namespace NNanomsg
             return Interop.nn_setsockopt_int(s, (int)level, option, ref val, sizeof(int));
         }
 
-        public static int GetSockOpt(int s, SocketOptions option, out int val)
+        public static int GetSockOpt(int s, SocketOption option, out int val)
         {
             int optvallen = sizeof(int);
             int optval = 0;
@@ -105,7 +105,7 @@ namespace NNanomsg
             {
                 buf[i] = Marshal.ReadByte(buffer, i);
             }
-
+            
             int rc2 = Interop.nn_freemsg(buffer);
 
             Debug.Assert(rc2 == 0);

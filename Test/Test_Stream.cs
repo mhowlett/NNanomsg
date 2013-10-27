@@ -13,11 +13,11 @@ namespace Test
 
         internal static void Execute()
         {
-            src = new byte[1024 * 64];
+            src = new byte[TestConstants.DataSize];
             new Random().NextBytes(src);
 
-            var bufferSizes = Enumerable.Range(8,6).Select(i => 1 << i);
-            const int IterationCount = 100000;
+            var bufferSizes = Enumerable.Range(8,7).Select(i => 1 << i);
+            const int IterationCount = 1000;
             foreach (var bufferSize in bufferSizes)
             {
                 Console.WriteLine("Buffers: " + string.Join(" ", bufferSize));

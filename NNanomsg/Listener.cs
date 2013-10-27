@@ -34,7 +34,7 @@ namespace NNanomsg
             try
             {
                 
-                res = NN.Poll(_sockets, Events.IN, timeout);
+                res = NN.Poll(_sockets, Events.In, timeout);
             }
             catch (Exception)
             {

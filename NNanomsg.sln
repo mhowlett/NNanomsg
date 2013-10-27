@@ -9,7 +9,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nanomsgx", "nanomsgx\nanomsgx.vcxproj", "{C3E791EE-3964-460B-9A90-D254A94ADFCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{CE1E3C5E-890D-4099-9799-88EE20745BBB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{68E450C0-0479-455A-BB13-F42AAD47FA18}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		NNanomsg.vsmdi = NNanomsg.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = NNanomsg.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -71,6 +83,18 @@ Global
 		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|Win32.Build.0 = Release|Win32
 		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|x64.ActiveCfg = Release|x64
 		{C3E791EE-3964-460B-9A90-D254A94ADFCE}.Release|x64.Build.0 = Release|x64
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Release|Win32.ActiveCfg = Release|Any CPU
+		{CE1E3C5E-890D-4099-9799-88EE20745BBB}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,48 +10,62 @@ namespace NNanomsg
     /// </summary>
     public class NanomsgSocketOptions
     {
-        int _socket, _level;
+        int _socket;
 
-        public NanomsgSocketOptions(int socket, int level)
+        public NanomsgSocketOptions(int socket)
         {
             _socket = socket;
-            _level = level;
-        }
-        public NanomsgSocketOptions(int socket)
-            : this(socket, Constants.NN_SOL_SOCKET)
-        {
         }
 
-        TimeSpan? GetTimespan(SocketOptions opts)
+        public static TimeSpan? GetTimespan(int socket, SocketOptionLevel level, SocketOption opts)
         {
             int value = 0, size = sizeof(int);
-            int result = Interop.nn_getsockopt(_socket, _level, (int)opts, ref value, ref size);
+            int result = Interop.nn_getsockopt(socket, (int)level, (int)opts, ref value, ref size);
             if (result != 0)
                 throw new NanomsgException(string.Format("nn_getsockopt {0}", opts));
             return value < 0 ? (TimeSpan?)null : TimeSpan.FromMilliseconds(value);
         }
 
-        void SetTimespan(SocketOptions opts, TimeSpan? value)
+        public static void SetTimespan(int socket, SocketOptionLevel level, SocketOption opts, TimeSpan? value)
         {
             int v = value.HasValue ? (int)value.Value.TotalMilliseconds : -1, size = sizeof(int);
-            int result = Interop.nn_setsockopt_int(_socket, _level, (int)opts, ref v, size);
+            int result = Interop.nn_setsockopt_int(socket, (int)level, (int)opts, ref v, size);
             if (result != 0)
                 throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
         }
 
-        int GetInt(SocketOptions opts)
+        public static int GetInt(int socket, SocketOptionLevel level, SocketOption opts)
         {
             int value = 0, size = sizeof(int);
-            int result = Interop.nn_getsockopt(_socket, _level, (int)opts, ref value, ref size);
+            int result = Interop.nn_getsockopt(socket, (int)level, (int)opts, ref value, ref size);
             if (result != 0)
                 throw new NanomsgException(string.Format("nn_getsockopt {0}", opts));
             return value;
         }
 
-        void SetInt(SocketOptions opts, int value)
+        public static void SetInt(int socket, SocketOptionLevel level, SocketOption opts, int value)
         {
             int v = value, size = sizeof(int);
-            int result = Interop.nn_setsockopt_int(_socket, _level, (int)opts, ref v, size);
+            int result = Interop.nn_setsockopt_int(socket, (int)level, (int)opts, ref v, size);
+            if (result != 0)
+                throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+        }
+
+        public static string GetString(int socket, SocketOptionLevel level, SocketOption opts)
+        {
+            string value = null;
+            int size = 0;
+            int result = Interop.nn_getsockopt(socket, (int)level, (int)opts, ref value, ref size);
+            if (result != 0)
+                throw new NanomsgException(string.Format("nn_getsockopt {0}", opts));
+            return value;
+        }
+
+        public static void SetString(int socket, SocketOptionLevel level, SocketOption opts, string value)
+        {
+            string v = value;
+            int size = value.Length;
+            int result = Interop.nn_setsockopt_string(socket, (int)level, (int)opts, v, size);
             if (result != 0)
                 throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
         }
@@ -63,7 +77,7 @@ namespace NNanomsg
         {
             get
             {
-                return (Domain)GetInt(SocketOptions.DOMAIN);
+                return (Domain)GetInt(_socket, SocketOptionLevel.Default, SocketOption.DOMAIN);
             }
         }
 
@@ -74,7 +88,7 @@ namespace NNanomsg
         {
             get
             {
-                return (Protocol)GetInt(SocketOptions.PROTOCOL);
+                return (Protocol)GetInt(_socket, SocketOptionLevel.Default, SocketOption.PROTOCOL);
             }
         }
 
@@ -85,11 +99,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetTimespan(SocketOptions.LINGER);
+                return GetTimespan(_socket, SocketOptionLevel.Default, SocketOption.LINGER);
             }
             set
             {
-                SetTimespan(SocketOptions.LINGER, value);
+                SetTimespan(_socket, SocketOptionLevel.Default, SocketOption.LINGER, value);
             }
         }
 
@@ -100,11 +114,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetInt(SocketOptions.SNDBUF);
+                return GetInt(_socket, SocketOptionLevel.Default, SocketOption.SNDBUF);
             }
             set
             {
-                SetInt(SocketOptions.SNDBUF, value);
+                SetInt(_socket, SocketOptionLevel.Default, SocketOption.SNDBUF, value);
             }
         }
 
@@ -115,11 +129,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetInt(SocketOptions.RCVBUF);
+                return GetInt(_socket, SocketOptionLevel.Default, SocketOption.RCVBUF);
             }
             set
             {
-                SetInt(SocketOptions.RCVBUF, value);
+                SetInt(_socket, SocketOptionLevel.Default, SocketOption.RCVBUF, value);
             }
         }
 
@@ -130,11 +144,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetTimespan(SocketOptions.SNDTIMEO);
+                return GetTimespan(_socket, SocketOptionLevel.Default, SocketOption.SNDTIMEO);
             }
             set
             {
-                SetTimespan(SocketOptions.SNDTIMEO, value);
+                SetTimespan(_socket, SocketOptionLevel.Default, SocketOption.SNDTIMEO, value);
             }
         }
 
@@ -145,11 +159,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetTimespan(SocketOptions.RCVTIMEO);
+                return GetTimespan(_socket, SocketOptionLevel.Default, SocketOption.RCVTIMEO);
             }
             set
             {
-                SetTimespan(SocketOptions.RCVTIMEO, value);
+                SetTimespan(_socket, SocketOptionLevel.Default, SocketOption.RCVTIMEO, value);
             }
         }
 
@@ -160,11 +174,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetTimespan(SocketOptions.RECONNECT_IVL).Value;
+                return GetTimespan(_socket, SocketOptionLevel.Default, SocketOption.RECONNECT_IVL).Value;
             }
             set
             {
-                SetTimespan(SocketOptions.RECONNECT_IVL, value);
+                SetTimespan(_socket, SocketOptionLevel.Default, SocketOption.RECONNECT_IVL, value);
             }
         }
 
@@ -175,11 +189,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetTimespan(SocketOptions.RECONNECT_IVL_MAX).Value;
+                return GetTimespan(_socket, SocketOptionLevel.Default, SocketOption.RECONNECT_IVL_MAX).Value;
             }
             set
             {
-                SetTimespan(SocketOptions.RECONNECT_IVL_MAX, value);
+                SetTimespan(_socket, SocketOptionLevel.Default, SocketOption.RECONNECT_IVL_MAX, value);
             }
         }
 
@@ -190,11 +204,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetInt(SocketOptions.SNDPRIO);
+                return GetInt(_socket, SocketOptionLevel.Default, SocketOption.SNDPRIO);
             }
             set
             {
-                SetInt(SocketOptions.SNDPRIO, value);
+                SetInt(_socket, SocketOptionLevel.Default, SocketOption.SNDPRIO, value);
             }
         }
 
@@ -205,11 +219,11 @@ namespace NNanomsg
         {
             get
             {
-                return GetInt(SocketOptions.IPV4ONLY) == 1;
+                return GetInt(_socket, SocketOptionLevel.Default, SocketOption.IPV4ONLY) == 1;
             }
             set
             {
-                SetInt(SocketOptions.IPV4ONLY, value ? 1 : 0);
+                SetInt(_socket, SocketOptionLevel.Default, SocketOption.IPV4ONLY, value ? 1 : 0);
             }
         }
 
@@ -220,7 +234,7 @@ namespace NNanomsg
         {
             get
             {
-                return new IntPtr(GetInt(SocketOptions.SNDFD));
+                return new IntPtr(GetInt(_socket, SocketOptionLevel.Default, SocketOption.SNDFD));
             }
         }
 
@@ -231,8 +245,15 @@ namespace NNanomsg
         {
             get
             {
-                return new IntPtr(GetInt(SocketOptions.RCVFD));
+                return new IntPtr(GetInt(_socket, SocketOptionLevel.Default, SocketOption.RCVFD));
             }
+        }
+
+
+        public bool TcpNoDelay
+        {
+            get { return GetInt(_socket, SocketOptionLevel.Tcp, SocketOption.TCP_NODELAY) == 1; }
+            set { SetInt(_socket, SocketOptionLevel.Tcp, SocketOption.TCP_NODELAY, value ? 1 : 0); }
         }
     }
 }

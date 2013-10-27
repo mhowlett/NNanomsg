@@ -58,6 +58,16 @@
     <Compile Include="NN.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocols\BusSocket.cs" />
+    <Compile Include="Protocols\PairSocket.cs" />
+    <Compile Include="Protocols\PublishSocket.cs" />
+    <Compile Include="Protocols\PullSocket.cs" />
+    <Compile Include="Protocols\PushSocket.cs" />
+    <Compile Include="Protocols\ReplySocket.cs" />
+    <Compile Include="Protocols\RequestSocket.cs" />
+    <Compile Include="Protocols\RespondentSocket.cs" />
+    <Compile Include="Protocols\SubscribeSocket.cs" />
+    <Compile Include="Protocols\SurveyorSocket.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="nanomsg.dll" />
