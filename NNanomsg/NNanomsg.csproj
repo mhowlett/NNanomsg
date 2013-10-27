@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -20,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -44,22 +47,35 @@
   <ItemGroup>
     <Compile Include="Enums.cs" />
     <Compile Include="Interop.cs" />
+    <Compile Include="MemoryUtils.cs" />
+    <Compile Include="NanomsgEndpoint.cs" />
     <Compile Include="NanomsgException.cs" />
     <Compile Include="NanomsgSocket.cs" />
     <Compile Include="NanomsgSocketOptions.cs" />
     <Compile Include="NanomsgSymbols.cs" />
     <Compile Include="NanomsgReadStream.cs" />
+    <Compile Include="NanomsgWriteStream.cs" />
     <Compile Include="NN.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocols\BusSocket.cs" />
+    <Compile Include="Protocols\PairSocket.cs" />
+    <Compile Include="Protocols\PublishSocket.cs" />
+    <Compile Include="Protocols\PullSocket.cs" />
+    <Compile Include="Protocols\PushSocket.cs" />
+    <Compile Include="Protocols\ReplySocket.cs" />
+    <Compile Include="Protocols\RequestSocket.cs" />
+    <Compile Include="Protocols\RespondentSocket.cs" />
+    <Compile Include="Protocols\SubscribeSocket.cs" />
+    <Compile Include="Protocols\SurveyorSocket.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="nanomsg.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="nanomsgx.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="nanomsg.dll" />
+    <Content Include="nanomsgx.dll" />
+    <Content Include="native\x64\nanomsg.dll" />
+    <Content Include="native\x64\nanomsgx.dll" />
+    <Content Include="native\x86\nanomsg.dll" />
+    <Content Include="native\x86\nanomsgx.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="libnanomsg.so">
@@ -70,6 +86,13 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /i /s /y $(ProjectDir)native\* $(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

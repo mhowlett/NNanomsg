@@ -5,14 +5,11 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Runtime.InteropServices;
 
 namespace NNanomsg
 {
-    public struct NanomsgEndpoint
-    {
-        public int ID;
-    }
-
     public class NanomsgSocket : IDisposable
     {
         const int NullSocket = -1;
@@ -23,8 +20,10 @@ namespace NNanomsg
         public int SocketID { get { return _socket; } }
 
         int _socket = NullSocket;
-        INativeDisposer<NanomsgReadStream> _freeMessageDisposer;
-        NanomsgReadStream _recycledStream;
+        INativeDisposer<NanomsgReadStream> _freeReadDisposer;
+        INativeDisposer<NanomsgWriteStream> _freeWriteDisposer;
+        NanomsgReadStream _recycledReadStream;
+        NanomsgWriteStream _recycledWriteStream;
 
         /// <summary>
         /// Initialize a new nanomsg socket for the given domain and protocol
@@ -58,6 +57,23 @@ namespace NNanomsg
             else
                 throw new NanomsgException("nn_connect " + address);
 
+        }
+
+        /// <summary>
+        /// Connects the socket to the remote address.  This can be called multiple times per socket.
+        /// </summary>
+        /// <param name="address">The IP address to which this client is connecting</param>
+        /// <param name="port">The port number to which this client is connecting</param>
+        /// <exception cref="NNanomsg.NanomsgException">Thrown if the address is invalid</exception>
+        public NanomsgEndpoint Connect(IPAddress address, int port)
+        {
+            int endpoint = -1;
+            endpoint = Interop.nn_connect(_socket, string.Format("tcp://{0}:{1}", address, port));
+
+            if (endpoint > 0)
+                return new NanomsgEndpoint() { ID = endpoint };
+            else
+                throw new NanomsgException("nn_connect " + address);
         }
 
         /// <summary>
@@ -221,14 +237,80 @@ namespace NNanomsg
             }
         }
 
+        [Obsolete("These methods are still being implemented")]
+        public NanomsgWriteStream CreateSendStream()
+        {
+            return new NanomsgWriteStream(this);
+        }
+
+        [Obsolete("These methods are still being implemented")]
+        public void SendStream(NanomsgWriteStream stream)
+        {
+            unsafe
+            {
+                int i = 0;
+                nn_iovec* iovec = stackalloc nn_iovec[i];
+                nn_msghdr* hdr = stackalloc nn_msghdr[1];
+            }
+        }
+
+        [Obsolete("These methods are still being implemented")]
+        public bool SendStreamImmediate(NanomsgWriteStream stream)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Blocks until a message is received, and then returns a buffer containing its contents.  Note that this intermediate byte array can be avoided using the ReceiveStream method.
+        /// </summary>
+        /// <returns>A buffer containing the received message.</returns>
+        /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state, the receive was interrupted, or the receive timeout has expired</exception>
+        public byte[] Receive()
+        {
+            return Receive(SendRecvFlags.NONE);
+        }
+
+        /// <summary>
+        /// If a message is pending, returns a buffer containing its contents.  If no message is pending, returns null.  Note that this intermediate byte array can be avoided using the ReceiveStreamImmediate method.
+        /// </summary>
+        /// <returns>A buffer with message data, or null if no message has currently been received.</returns>
+        /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state, the receive was interrupted, or the receive timeout has expired</exception>
+        public byte[] ReceiveImmediate()
+        {
+            return Receive(SendRecvFlags.DONTWAIT);
+        }
+
+        byte[] Receive(SendRecvFlags flags)
+        {
+            IntPtr buffer = IntPtr.Zero;
+            int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
+
+            if (rc <= 0 || buffer == null)
+                return null;
+
+            byte[] output = new byte[rc];
+            try
+            {
+                Marshal.Copy(buffer, output, 0, rc);
+            }
+            finally
+            {
+                rc = Interop.nn_freemsg(buffer);
+                if (rc != 0)
+                    throw new NanomsgException("freemsg");
+            }
+
+            return output;
+        }
+
         /// <summary>
         /// Blocks until a message is received, and then returns a stream containing its contents.
         /// </summary>
         /// <returns>The stream containing the message data.  This stream should be disposed in order to free the message resources.</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state, the receive was interrupted, or the receive timeout has expired</exception>
-        public NanomsgReadStream Receive()
+        public NanomsgReadStream ReceiveStream()
         {
-            var stream =  Receive(SendRecvFlags.NONE);
+            var stream =  ReceiveStream(SendRecvFlags.NONE);
             if (stream == null)
                 throw new NanomsgException("nn_recv");
 
@@ -240,9 +322,9 @@ namespace NNanomsg
         /// </summary>
         /// <returns>A stream with message data, or null if no message has currently been received.</returns>
         /// <exception cref="NNanomsg.NanomsgException">Thrown if the socket is in an invalid state, the receive was interrupted, or the receive timeout has expired</exception>
-        public NanomsgReadStream ReceiveImmediate()
+        public NanomsgReadStream ReceiveStreamImmediate()
         {
-            var stream = Receive(SendRecvFlags.DONTWAIT);
+            var stream = ReceiveStream(SendRecvFlags.DONTWAIT);
             if (stream == null)
             {
                 int error = Interop.nn_errno();
@@ -255,7 +337,7 @@ namespace NNanomsg
                 return stream;
         }
 
-        NanomsgReadStream Receive(SendRecvFlags flags)
+        NanomsgReadStream ReceiveStream(SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
             int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
@@ -272,20 +354,20 @@ namespace NNanomsg
              * socket class for reuse.  
              */
 
-            var stream = Interlocked.Exchange(ref _recycledStream, null);
+            var stream = Interlocked.Exchange(ref _recycledReadStream, null);
 
             if (stream != null)
                 stream.Reinitialize(buffer, rc);
             else
                 stream = new NanomsgReadStream(buffer, rc,
-                    _freeMessageDisposer ?? (_freeMessageDisposer = new NanomsgNativeDisposer() { Socket = this }));
+                    _freeReadDisposer ?? (_freeReadDisposer = new NanomsgNativeDisposer() { Socket = this }));
 
             return stream;
         }
 
         void RecycleStream(NanomsgReadStream messageStream)
         {
-            _recycledStream = messageStream;
+            _recycledReadStream = messageStream;
         }
 
         class NanomsgNativeDisposer : INativeDisposer<NanomsgReadStream>
