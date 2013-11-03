@@ -51,6 +51,7 @@
     <Compile Include="NanomsgEndpoint.cs" />
     <Compile Include="NanomsgException.cs" />
     <Compile Include="NanomsgSocket.cs" />
+    <Compile Include="NanomsgSocketBase.cs" />
     <Compile Include="NanomsgSocketOptions.cs" />
     <Compile Include="NanomsgSymbols.cs" />
     <Compile Include="NanomsgReadStream.cs" />
