@@ -10,7 +10,7 @@ namespace NNanomsg
 {
     public unsafe class NanomsgWriteStream : Stream
     {
-        NanomsgSocket _socket;
+        NanomsgSocketBase _socket;
         int _length;
         BufferHeader* _first, _current;
         BufferPool _pool;
@@ -33,10 +33,10 @@ namespace NNanomsg
         {
             public BufferHeader* Next;
             public int Size, Used;
-
+            public static readonly int BufferHeaderSize = Marshal.SizeOf(typeof(BufferHeader));
             public static byte* Data(BufferHeader* header)
             {
-                return ((byte*)header) + BufferPool.BufferHeaderSize;
+                return ((byte*)header) + BufferHeader.BufferHeaderSize;
             }
         }
 
@@ -59,7 +59,7 @@ namespace NNanomsg
                 if (rightThread && _pool.Count > 0)
                     return (BufferHeader*)_pool.Dequeue();
 
-                BufferHeader* header = (BufferHeader*)Marshal.AllocHGlobal(_pageSize + BufferHeaderSize);
+                BufferHeader* header = (BufferHeader*)Marshal.AllocHGlobal(_pageSize + BufferHeader.BufferHeaderSize);
                 (*header).Next = null;
                 (*header).Size = _pageSize;
                 (*header).Used = 0;
@@ -71,7 +71,7 @@ namespace NNanomsg
                 if (size == _pageSize)
                     return Alloc();
 
-                BufferHeader* header = (BufferHeader*)Marshal.AllocHGlobal(size + BufferHeaderSize);
+                BufferHeader* header = (BufferHeader*)Marshal.AllocHGlobal(size + BufferHeader.BufferHeaderSize);
                 (*header).Next = null;
                 (*header).Size = size;
                 (*header).Used = 0;
@@ -93,11 +93,11 @@ namespace NNanomsg
                     }
                     else
                         Marshal.FreeHGlobal((IntPtr)header);
-                    
+
                     header = next;
                 } while (header != null);
             }
-            public static readonly int BufferHeaderSize = Marshal.SizeOf(typeof(BufferHeader));
+            
         }
 
         static class ThreadBufferPool
@@ -111,14 +111,14 @@ namespace NNanomsg
                 {
                     if (_pool != null)
                         return _pool;
-                    return _pool = new BufferPool(4096 - BufferPool.BufferHeaderSize, 10);
+                    return _pool = new BufferPool(4096 - BufferHeader.BufferHeaderSize, 10);
                 }
             }
         }
 
         #endregion
 
-        public NanomsgWriteStream(NanomsgSocket socket)
+        public NanomsgWriteStream(NanomsgSocketBase socket)
         {
             _socket = socket;
         }
@@ -185,31 +185,45 @@ namespace NNanomsg
                     MemoryUtils.CopyMemory(src + offset, BufferHeader.Data(_current), toCopy);
                     (*_current).Used += toCopy;
                     count -= toCopy;
-                    if (count == 0) 
+                    if (count == 0)
                         break;
                     offset += toCopy;
                 }
             _length += initialCount;
         }
 
-        public byte[] Buffer
+        public byte[] FullBuffer()
         {
-            get
-            {
-                var data = new byte[_length];
-                var page = _first;
-                int position = 0;
-                fixed(byte* b = data)
+            var data = new byte[_length];
+            var page = _first;
+            int position = 0;
+            fixed (byte* b = data)
                 while (page != null)
                 {
                     var length = (*page).Used;
                     MemoryUtils.CopyMemory(BufferHeader.Data(page), b + position, length);
-                    position+=length; 
+                    position += length;
                     page = (*page).Next;
                 }
 
-                return data;
-            }
+            return data;
+        }
+
+        public struct BufferResult { public int Length; public IntPtr Buffer;}
+
+        public BufferResult FirstPage()
+        {
+            return new BufferResult() { Length = (*_first).Used, Buffer = (IntPtr)BufferHeader.Data(_first) };
+        }
+
+        public BufferResult NextPage(BufferResult result)
+        {
+            var current = (BufferHeader*)((byte*)result.Buffer - BufferHeader.BufferHeaderSize);
+            var next = (*current).Next;
+            if (next == null)
+                return new BufferResult();
+
+            return new BufferResult() { Length = (*next).Used, Buffer = (IntPtr)BufferHeader.Data(next) };
         }
 
         int EnsureCapacity()
@@ -244,7 +258,7 @@ namespace NNanomsg
 
             if (head != null && pool != null)
                 pool.Dealloc(head);
-            
+
             base.Dispose(disposing);
         }
 
@@ -254,11 +268,11 @@ namespace NNanomsg
             {
                 int i = 0;
                 BufferHeader* header = this._first;
-                while(header!=null)
+                while (header != null)
                 {
                     ++i;
                     header = (*header).Next;
-                } 
+                }
                 return i;
             }
         }

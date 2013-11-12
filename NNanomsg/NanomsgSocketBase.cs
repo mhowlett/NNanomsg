@@ -237,27 +237,58 @@ namespace NNanomsg
             }
         }
 
-        [Obsolete("These methods are still being implemented")]
         protected NanomsgWriteStream CreateSendStreamImpl()
         {
-            return new NanomsgWriteStream((NanomsgSocket)this);
+            return new NanomsgWriteStream((NanomsgSocketBase)this);
         }
 
-        [Obsolete("These methods are still being implemented")]
         protected void SendStreamImpl(NanomsgWriteStream stream)
+        {
+            SendStreamImpl(stream, SendRecvFlags.NONE);
+        }
+
+        protected int SendStreamImpl(NanomsgWriteStream stream, SendRecvFlags flags)
         {
             unsafe
             {
-                int i = 0;
-                nn_iovec* iovec = stackalloc nn_iovec[i];
+                int bufferCount = stream.PageCount;
+                nn_iovec* iovec = stackalloc nn_iovec[bufferCount];
                 nn_msghdr* hdr = stackalloc nn_msghdr[1];
+
+                var buffer = stream.FirstPage();
+                int i = 0;
+                do
+                {
+                    iovec[i].iov_len = buffer.Length;
+                    iovec[i].iov_base = (void*)buffer.Buffer;
+                    buffer = stream.NextPage(buffer);
+                } while (buffer.Buffer != IntPtr.Zero && i++ < bufferCount);
+
+                (*hdr).msg_control = null;
+                (*hdr).msg_controllen = 0;
+                (*hdr).msg_iov = iovec;
+                (*hdr).msg_iovlen = bufferCount;
+
+                return Interop.nn_sendmsg(SocketID, hdr, (int)flags);
             }
         }
 
-        [Obsolete("These methods are still being implemented")]
         protected bool SendStreamImmediateImpl(NanomsgWriteStream stream)
         {
-            return true;
+            int sentBytes = SendStreamImpl(stream, SendRecvFlags.DONTWAIT);
+            if (sentBytes < 0)
+            {
+                int error = Interop.nn_errno();
+                if (error == NanomsgSymbols.EAGAIN)
+                    return false;
+                else
+                    throw new NanomsgException("nn_send", error);
+            }
+            else
+            {
+                Debug.Assert(sentBytes == stream.Length);
+                return true;
+            }
         }
 
         /// <summary>
@@ -360,7 +391,7 @@ namespace NNanomsg
                 stream.Reinitialize(buffer, rc);
             else
                 stream = new NanomsgReadStream(buffer, rc,
-                    _freeReadDisposer ?? (_freeReadDisposer = new NanomsgNativeDisposer() { Socket = (NanomsgSocket)this }));
+                    _freeReadDisposer ?? (_freeReadDisposer = new NanomsgNativeDisposer() { Socket = (NanomsgSocketBase)this }));
 
             return stream;
         }
@@ -372,7 +403,7 @@ namespace NNanomsg
 
         class NanomsgNativeDisposer : INativeDisposer<NanomsgReadStream>
         {
-            public NanomsgSocket Socket;
+            public NanomsgSocketBase Socket;
 
             public void DisposeOf(IntPtr nativeResource, NanomsgReadStream owner)
             {

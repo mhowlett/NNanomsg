@@ -17,6 +17,9 @@ namespace NNanomsg
         /// </summary>
         public unsafe static void CopyMemory(byte* src, byte* dest, int length)
         {
+            //memcpy((IntPtr)dest, (IntPtr)src, length);
+            //return;
+
             if (length >= 16)
             {
                 do 
