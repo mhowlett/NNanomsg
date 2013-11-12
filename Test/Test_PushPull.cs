@@ -6,16 +6,16 @@ using NNanomsg.Protocols;
 
 namespace Test
 {
-    class Test_Pair
+    class Test_PushPull
     {
         
-        static byte[] _clientData, _serverData;
-        const string InprocAddress = "inproc://pair_test";
+            static byte[] _clientData, _serverData;
+            const string InprocAddress = "inproc://pushpull_test", InprocAddressReverse = "inproc://pushpull_test_reverse";
         const int DataSize = TestConstants.DataSize, BufferSize = 1024 * 4, Iter = TestConstants.Iterations;
 
         public static void Execute()
         {
-            Console.WriteLine("Executing Pair test");
+            Console.WriteLine("Executing PushPull test");
 
 
             _clientData = new byte[DataSize];
@@ -28,8 +28,11 @@ namespace Test
             var clientThread = new Thread(
                 () =>
                 {
-                    var req = new PairSocket();
+                    var req = new PushSocket();
                     req.Connect(InprocAddress);
+
+                    var revreq = new PullSocket();
+                    revreq.Bind(InprocAddressReverse);
                     
                     byte[] streamOutput = new byte[BufferSize];
                     while (true)
@@ -40,14 +43,14 @@ namespace Test
                             var result = req.SendImmediate(_clientData);
                             Trace.Assert(result);
                             int read = 0;
-                            using (var stream = req.ReceiveStream())
+                            using (var stream = revreq.ReceiveStream())
                                 while (stream.Length != stream.Position)
                                     read += stream.Read(streamOutput, 0, streamOutput.Length);
                             Trace.Assert(read == _serverData.Length);
                         }
                         sw.Stop();
                         var secondsPerSend = sw.Elapsed.TotalSeconds / (double)Iter;
-                        Console.WriteLine("Pair Time {0} us, {1} per second, {2} mb/s ",
+                        Console.WriteLine("PushPull Time {0} us, {1} per second, {2} mb/s ",
                             (int)(secondsPerSend * 1000d * 1000d),
                             (int)(1d / secondsPerSend),
                             (int)(DataSize * 2d / (1024d * 1024d * secondsPerSend)));
@@ -56,8 +59,11 @@ namespace Test
             clientThread.Start();
 
             {
-                var rep = new PairSocket();
+                var rep = new PullSocket();
                 rep.Bind(InprocAddress);
+
+                var revrep = new PushSocket();
+                revrep.Connect(InprocAddressReverse);
 
                 byte[] streamOutput = new byte[BufferSize];
 
@@ -68,7 +74,7 @@ namespace Test
                     using (var stream = rep.ReceiveStream())
                         while (stream.Length != stream.Position)
                             read += stream.Read(streamOutput, 0, streamOutput.Length);
-                    rep.SendImmediate(_serverData);
+                    revrep.SendImmediate(_serverData);
                 }
 
                 clientThread.Abort();

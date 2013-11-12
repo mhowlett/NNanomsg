@@ -9,7 +9,7 @@ namespace Test
     {
         public const int 
             Iterations = 10000,
-            DataSize = 64;//1024 * 100;
+            DataSize = 4 * 1024;//1024 * 100;
 
     }
 }

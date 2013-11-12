@@ -6,16 +6,16 @@ using NNanomsg.Protocols;
 
 namespace Test
 {
-    class Test_Pair
+    class Test_WriteStream
     {
         
         static byte[] _clientData, _serverData;
-        const string InprocAddress = "inproc://pair_test";
+        const string InprocAddress = "inproc://writestream_test";
         const int DataSize = TestConstants.DataSize, BufferSize = 1024 * 4, Iter = TestConstants.Iterations;
 
         public static void Execute()
         {
-            Console.WriteLine("Executing Pair test");
+            Console.WriteLine("Executing WriteStream-pair test");
 
 
             _clientData = new byte[DataSize];
@@ -37,8 +37,13 @@ namespace Test
                         var sw = Stopwatch.StartNew();
                         for (int i = 0; i < Iter; i++)
                         {
-                            var result = req.SendImmediate(_clientData);
-                            Trace.Assert(result);
+                            using (var writeStream = req.CreateSendStream())
+                            {
+                                writeStream.Write(_clientData, 0, _clientData.Length);
+                                var result = req.SendStreamImmediate(writeStream);
+                                Trace.Assert(result);
+                            }
+                            
                             int read = 0;
                             using (var stream = req.ReceiveStream())
                                 while (stream.Length != stream.Position)
@@ -47,7 +52,7 @@ namespace Test
                         }
                         sw.Stop();
                         var secondsPerSend = sw.Elapsed.TotalSeconds / (double)Iter;
-                        Console.WriteLine("Pair Time {0} us, {1} per second, {2} mb/s ",
+                        Console.WriteLine("WriteStream-Pair Time {0} us, {1} per second, {2} mb/s ",
                             (int)(secondsPerSend * 1000d * 1000d),
                             (int)(1d / secondsPerSend),
                             (int)(DataSize * 2d / (1024d * 1024d * secondsPerSend)));
@@ -68,7 +73,14 @@ namespace Test
                     using (var stream = rep.ReceiveStream())
                         while (stream.Length != stream.Position)
                             read += stream.Read(streamOutput, 0, streamOutput.Length);
-                    rep.SendImmediate(_serverData);
+
+                    using (var writeStream = rep.CreateSendStream())
+                    {
+                        writeStream.Write(_serverData, 0, _serverData.Length);
+                        var result = rep.SendStreamImmediate(writeStream);
+                        Trace.Assert(result);
+                    }
+                    
                 }
 
                 clientThread.Abort();
