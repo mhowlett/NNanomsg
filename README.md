@@ -9,6 +9,7 @@ written in C which implements polling functionality that is provided as part of 
 have included nanomsg and nanomsgx binaries for Windows (x86/x64) and Linux (x86/x64).
 
 The search path for these libraries is:
+
      Windows:   [Application Directory]\[x86|x64]
                 [Application Directory]
 
