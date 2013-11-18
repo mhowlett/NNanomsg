@@ -33,10 +33,9 @@ namespace NNanomsg
             int[] res = null;
             try
             {
-                
                 res = NN.Poll(_sockets, Events.In, timeout);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // I don't believe this ever happens.
                 Console.WriteLine("DEBUG: Poll threw exception, ignoring.");

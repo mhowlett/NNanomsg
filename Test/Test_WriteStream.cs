@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using NNanomsg;
 using NNanomsg.Protocols;
 
 namespace Test
 {
     class Test_WriteStream
     {
-        
         static byte[] _clientData, _serverData;
         const string InprocAddress = "inproc://writestream_test";
         const int DataSize = TestConstants.DataSize, BufferSize = 1024 * 4, Iter = TestConstants.Iterations;
@@ -16,7 +14,6 @@ namespace Test
         public static void Execute()
         {
             Console.WriteLine("Executing WriteStream-pair test");
-
 
             _clientData = new byte[DataSize];
             _serverData = new byte[DataSize];

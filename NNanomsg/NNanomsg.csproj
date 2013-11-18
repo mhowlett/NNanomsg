@@ -71,18 +71,16 @@
     <Compile Include="Protocols\SurveyorSocket.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="nanomsg.dll" />
-    <Content Include="nanomsgx.dll" />
     <Content Include="native\x64\nanomsg.dll" />
     <Content Include="native\x64\nanomsgx.dll" />
     <Content Include="native\x86\nanomsg.dll" />
     <Content Include="native\x86\nanomsgx.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="libnanomsg.so">
+    <None Include="native\x86\libnanomsg.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="libnanomsgx.so">
+    <None Include="native\x86\libnanomsgx.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

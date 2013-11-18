@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.IO;
@@ -79,15 +76,33 @@ namespace NNanomsg
             const int RTLD_NOW = 2;
             string libFile = "lib" + libName + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string fullPath = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
-
-            if (File.Exists(fullPath))
-                dlopen(fullPath, RTLD_NOW);
-            else
+            
+            string path = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
+            if (File.Exists(path))
             {
-                fullPath = Path.Combine(rootDirectory, libFile);
-                if (File.Exists(fullPath))
-                    dlopen(fullPath, RTLD_NOW);
+                dlopen(path, RTLD_NOW);
+                return;
+            }
+            
+            path = Path.Combine(rootDirectory, libFile);
+            if (File.Exists(path))
+            {
+                dlopen(path, RTLD_NOW);
+                return;
+            }
+
+            path = "/usr/local/lib";
+            if (File.Exists(path))
+            {
+                dlopen(path, RTLD_NOW);
+                return;
+            }
+
+            path = "/usr/lib";
+            if (File.Exists(path))
+            {
+                dlopen(path, RTLD_NOW);
+                return;
             }
         }
 
