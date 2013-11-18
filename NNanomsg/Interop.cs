@@ -74,7 +74,7 @@ namespace NNanomsg
         static void LoadPosixLibrary(string libName)
         {
             const int RTLD_NOW = 2;
-            string libFile = "lib" + libName + ".so";
+            string libFile = "lib" + libName.ToLower() + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             
             string path = Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile);
