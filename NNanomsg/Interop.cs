@@ -91,14 +91,14 @@ namespace NNanomsg
                 return;
             }
 
-            path = "/usr/local/lib";
+            path = Path.Combine("/usr/local/lib", libName);
             if (File.Exists(path))
             {
                 dlopen(path, RTLD_NOW);
                 return;
             }
 
-            path = "/usr/lib";
+            path = Path.Combine("/usr/lib", libName);
             if (File.Exists(path))
             {
                 dlopen(path, RTLD_NOW);
