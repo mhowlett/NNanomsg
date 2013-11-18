@@ -77,12 +77,10 @@
     <Content Include="native\x86\nanomsgx.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="native\x86\libnanomsg.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="native\x86\libnanomsgx.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="native\x64\libnanomsg.so" />
+    <Content Include="native\x64\libnanomsgx.so" />
+    <Content Include="native\x86\libnanomsg.so" />
+    <Content Include="native\x86\libnanomsgx.so" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
