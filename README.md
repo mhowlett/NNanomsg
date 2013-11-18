@@ -3,28 +3,36 @@
 This is a lightweight wrapper around the <a href="http://nanomsg.org">nanomsg</a> C API which makes
 it callable from .NET languages.
 
-The .NET library works without recompiling on both Windows and Linux (the latter using mono), however at 
-runtime, it needs to be able to locate the native nanomsg library for your platform as well as nanomsgx, a 
-small library written in C that is part of this distribution that implements polling functionality.
+NNanomsg can be used without recompiling on any platform where .NET is available. At runtime, it needs 
+to be able to locate the native nanomsg library for your platform as well as nanomsgx, a small library
+written in C which implements polling functionality that is provided as part of this distribution. We
+have included nanomsg and nanomsgx binaries for Windows (x86/x64) and Linux (x86/x64).
+
+The search path for these libraries is:
+  Windows:   [Application Directory]\[x86|x64]
+             [Application Directory]
+
+  Posix:     [Application Directory]/[x86|x64]
+             [Application Directory]
+             /usr/local/lib
+             /usr/lib
 
 The advantages of wrapping the C API rather than implementing it entirely in a .NET language are:
  1. It is much less work. This means that:
- 2. I have written very little code in which to introduce bugs. All functionality is provided by the C 
-    implementation which should be well tested and tuned. This is an important point and it is something that
-    worries me about using a library that offers API's in a large number of different languages - I wonder 
-    about the quality of all these implementations!
+ 2. There is very little code in which to introduce bugs. 
 
 The disadvantages are:
  1. .NET applications that use the library cannot be run on different platforms without acquiring/building nanomsg
     and nanomsgx for those platforms.
  2. It means you might have to bugger about with C compilers / native linking which depending on your luck and level 
-    of expertise has the potential to cause headaches. Note: I've included x86 Windows and Linux binaries in git, so
-    if you are on one of those platforms, you are in luck.
+    of expertise has the potential to cause headaches.
  3. I'm not sure which method is more efficient. 
 
 ### Example
 
 A simple C# example is included in the source distribution and you might also want to look at the Test project.
+
+These are a work in progress. 
 
 
 ### Development Status
@@ -32,8 +40,6 @@ A simple C# example is included in the source distribution and you might also wa
 Alpha quality. 
 
 Tested against nanomsg version 0.2-alpha only.
-
-sendmsg and recvmsg not yet implemented (but send and recv are). 
 
 Polling functionality could probably be implemented completely in managed code (thus getting rid of the extra 
 native library) and more properly integrated with the .NET runtime / ThreadPool. Some aspects of this task
@@ -44,12 +50,6 @@ I've been using this quite a bit over the last week or so in a fairly large proj
 
 
 ### Building Notes
-
-Build nanomsg.dll and/or libnanomsg.so as instructed by the nanomsg.org website and make sure they can be found 
-by the .NET runtime when you execute your application. I tend to include these libraries in my project and have 
-them coppied automatically into the application directory when built.
-
-You will need to set the 'Platform Target' to x86 in any project that references NNanomsg.
 
 To build nanomsx, which will be referenced if you try to use the polling functionality, you will need to specify
 the path to the nanomsg source directory as follows:
@@ -65,3 +65,9 @@ On Linux:
 
 I've included a Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the test 
 project.
+
+
+### Primary Contributors
+
+  Matt Howeltt
+  Mason Of Words
