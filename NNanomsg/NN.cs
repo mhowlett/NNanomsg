@@ -72,12 +72,10 @@ namespace NNanomsg
         /// <returns>
         ///     The length, in bytes, of the message.
         /// </returns>
-        /*
         public static int Recv(int s, byte[] buf, SendRecvFlags flags)
         {
-            return Interop.nn_recv(s, buf, buf.Length, (int)flags);
+            return Interop.nn_recv_array(s, buf, buf.Length, (int)flags);
         }
-        */
 
         /// <summary>
         ///     Receives a message of unknown length into a new buffer.
@@ -90,11 +88,9 @@ namespace NNanomsg
         /// </remarks>
         public static int Recv(int s, out byte[] buf, SendRecvFlags flags)
         {
-            Console.WriteLine("a");
             IntPtr buffer = IntPtr.Zero;
             int rc = Interop.nn_recv(s, ref buffer, Constants.NN_MSG, (int)flags);
-            Console.WriteLine("b");
-
+            
             if (rc < 0)
             {
                 buf = null;
@@ -107,14 +103,11 @@ namespace NNanomsg
             buf = new byte[numberOfBytes];
             for (int i = 0; i < numberOfBytes; ++i)
             {
-                Console.WriteLine("c");
                 buf[i] = Marshal.ReadByte(buffer, i);
             }
             
-            Console.WriteLine("d");
-            int rc2 = Interop.nn_freemsg(buffer);
-            
-            Debug.Assert(rc2 == 0);
+            int rc_free = Interop.nn_freemsg(buffer);
+            Debug.Assert(rc_free == 0);
 
             return rc;
         }

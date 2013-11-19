@@ -27,9 +27,6 @@ namespace NNanomsg
     /// This uses the convention of a library being in:
     ///   Win32 - [architecture]/module.dll
     ///   Posix - [architecture]/libmodule.so
-    /// 
-    /// If you want to use Mono's dllmap instead, initialize the CustomLoadLibrary property to null
-    /// to prevent dynamic loading.
     /// </summary>
     public static class NanomsgLibraryLoader
     {
@@ -45,6 +42,7 @@ namespace NNanomsg
         [DllImport("libdl.so")]
         static extern IntPtr dlsym(IntPtr handle, String symbol);
 
+
         static NanomsgLibraryLoader()
         {
             if (Environment.OSVersion.Platform.ToString().Contains("Win32"))
@@ -55,7 +53,7 @@ namespace NNanomsg
                 CustomLoadLibrary = LoadPosixLibrary;
         }
 
-        static void LoadWindowsLibrary(string libName)
+        static IntPtr LoadWindowsLibrary(string libName, out SymbolLookupDelegate symbolLookup)
         {
             string libFile = libName + ".dll";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -68,102 +66,54 @@ namespace NNanomsg
                 if (File.Exists(path))
                 {
                     var addr = LoadLibrary(path);
-                    Trace.Assert(addr != IntPtr.Zero);
-
-                    Console.WriteLine("lib: " + addr);
-
-                    if (libName == "Nanomsg")
+                    if (addr == IntPtr.Zero)
                     {
-                        InitializeDelegates(addr, GetProcAddress);
+                        throw new NanomsgException("unable to load " + libFile);
                     }
-                    else
-                    {
-                        IntPtr procaddr = GetProcAddress(addr, "nn_poll");
-                        Console.WriteLine("poll: " + procaddr);
-                        Interop.nn_poll =
-                            (Interop.nn_poll_delegate)
-                            Marshal.GetDelegateForFunctionPointer(procaddr, typeof(Interop.nn_poll_delegate));
-                    }
-
-                    return;
+                    symbolLookup = GetProcAddress;
+                    return addr;
                 }
             }
+
+            symbolLookup = null;
+            return IntPtr.Zero;
         }
 
-        private delegate IntPtr SymbolLookup(IntPtr addr, string name);
-
-        static void InitializeDelegates(IntPtr addr, SymbolLookup lookup)
-        {
-            Interop.nn_socket = (Interop.nn_socket_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_socket"), typeof(Interop.nn_socket_delegate));
-            Interop.nn_connect = (Interop.nn_connect_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_connect"), typeof(Interop.nn_connect_delegate));
-            Interop.nn_bind = (Interop.nn_bind_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_bind"), typeof(Interop.nn_bind_delegate));
-            Interop.nn_setsockopt_int = (Interop.nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_setsockopt"), typeof(Interop.nn_setsockopt_int_delegate));
-            Interop.nn_send = (Interop.nn_send_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_send"), typeof(Interop.nn_send_delegate));
-            var recv = lookup(addr, "nn_recv");
-            Console.WriteLine("recv: " + recv);
-            Interop.nn_recv = (Interop.nn_recv_delegate)Marshal.GetDelegateForFunctionPointer(recv, typeof(Interop.nn_recv_delegate));
-            //Interop.nn_recv_intptr = (Interop.nn_recv_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_recv"), typeof(Interop.nn_recv_intptr_delegate));
-            Interop.nn_errno = (Interop.nn_errno_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_errno"), typeof(Interop.nn_errno_delegate));
-            Interop.nn_close = (Interop.nn_close_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_close"), typeof(Interop.nn_close_delegate));
-            Interop.nn_shutdown = (Interop.nn_shutdown_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_shutdown"), typeof(Interop.nn_shutdown_delegate));
-            Interop.nn_strerror = (Interop.nn_strerror_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_strerror"), typeof(Interop.nn_strerror_delegate));
-            Interop.nn_device = (Interop.nn_device_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_device"), typeof(Interop.nn_device_delegate));
-            Interop.nn_term = (Interop.nn_term_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_term"), typeof(Interop.nn_term_delegate));
-            Interop.nn_setsockopt_string = (Interop.nn_setsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_setsockopt"), typeof(Interop.nn_setsockopt_string_delegate));
-            Interop.nn_setsockopt_int = (Interop.nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_setsockopt"), typeof(Interop.nn_setsockopt_int_delegate));
-            Interop.nn_getsockopt = (Interop.nn_getsockopt_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_getsockopt"), typeof(Interop.nn_getsockopt_delegate));
-            Interop.nn_getsockopt_intptr = (Interop.nn_getsockopt_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_getsockopt"), typeof(Interop.nn_getsockopt_intptr_delegate));
-            Interop.nn_getsockopt_string = (Interop.nn_getsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_getsockopt"), typeof(Interop.nn_getsockopt_string_delegate));
-            Interop.nn_allocmsg = (Interop.nn_allocmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_allocmsg"), typeof(Interop.nn_allocmsg_delegate));
-            Interop.nn_freemsg = (Interop.nn_freemsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_freemsg"), typeof(Interop.nn_freemsg_delegate));
-            Interop.nn_sendmsg = (Interop.nn_sendmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_sendmsg"), typeof(Interop.nn_sendmsg_delegate));
-            Interop.nn_recvmsg = (Interop.nn_recvmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_recvmsg"), typeof(Interop.nn_recvmsg_delegate));
-            Interop.nn_symbol = (Interop.nn_symbol_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_symbol"), typeof(Interop.nn_symbol_delegate));
-
-        }
-
-        static void LoadPosixLibrary(string libName)
+        static IntPtr LoadPosixLibrary(string libName, out SymbolLookupDelegate symbolLookup)
         {
             const int RTLD_NOW = 2;
             string libFile = "lib" + libName.ToLower() + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            // 
-            // http://stackoverflow.com/questions/13461989/p-invoke-to-dynamically-loaded-library-on-mono
-            
             foreach (var path in new [] {
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile),
-                    Path.Combine("/usr/local/lib", libName),
-                    Path.Combine("/usr/lib", libName)
+                    Path.Combine("/usr/local/lib", libFile),
+                    Path.Combine("/usr/lib", libFile)
                 })
             {
                 if (File.Exists(path))
                 {
                     var addr = dlopen(path, RTLD_NOW);
                     Trace.Assert(addr != IntPtr.Zero);
-
-                    Console.WriteLine("lib: " + addr);
-                    
-                    if (libName == "Nanomsg")
+                    if (addr == IntPtr.Zero)
                     {
-                        InitializeDelegates(addr, dlsym);
+                        throw new NanomsgException("unable to load " + libFile);
                     }
-                    else
-                    {
-                        IntPtr procaddr = dlsym(addr, "nn_poll");
-                        Console.WriteLine("poll: " + procaddr);
-                        Interop.nn_poll =
-                            (Interop.nn_poll_delegate)
-                            Marshal.GetDelegateForFunctionPointer(procaddr, typeof(Interop.nn_poll_delegate));
-                    }
-                    
-                    return;
+                    symbolLookup = dlsym;
+                    return addr;
                 }
             }
+
+            symbolLookup = null;
+            return IntPtr.Zero;
         }
 
-        public static Action<string> CustomLoadLibrary { get; set; }
+        public delegate IntPtr SymbolLookupDelegate(IntPtr addr, string name);
+
+        public delegate IntPtr LoadLibraryDelegate(string libName, out SymbolLookupDelegate symbolLookup);
+        
+        public static LoadLibraryDelegate CustomLoadLibrary { get; set; }
     }
 
     [System.Security.SuppressUnmanagedCodeSecurity]
@@ -171,13 +121,48 @@ namespace NNanomsg
     {
         static Interop()
         {
-            // if a custom method is specified for loading these libraries, let it take over
             if (NanomsgLibraryLoader.CustomLoadLibrary != null)
             {
-                NanomsgLibraryLoader.CustomLoadLibrary("Nanomsg");
-                NanomsgLibraryLoader.CustomLoadLibrary("Nanomsgx");
+                NanomsgLibraryLoader.SymbolLookupDelegate symbolLookup;
+                var nanomsgAddr = NanomsgLibraryLoader.CustomLoadLibrary("Nanomsg", out symbolLookup);
+                var nanomsgxAddr = NanomsgLibraryLoader.CustomLoadLibrary("Nanomsgx", out symbolLookup);
+                
+                InitializeDelegates(nanomsgAddr, nanomsgxAddr, symbolLookup);
             }
         }
+
+        static void InitializeDelegates(IntPtr nanomsgAddr, IntPtr nanomsgxAddr, NanomsgLibraryLoader.SymbolLookupDelegate lookup)
+        {
+            // Note: If running under mono and the native nanomsg libraries are in a non-standard location (e.g. under application_dir/x86|x64), 
+            // the standard approach of using [DllImport] attributes does not work. 
+
+            nn_socket = (nn_socket_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_socket"), typeof(nn_socket_delegate));
+            nn_connect = (nn_connect_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_connect"), typeof(nn_connect_delegate));
+            nn_bind = (nn_bind_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_bind"), typeof(nn_bind_delegate));
+            nn_setsockopt_int = (nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_int_delegate));
+            nn_send = (nn_send_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_send"), typeof(nn_send_delegate));
+            nn_recv = (nn_recv_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recv"), typeof(nn_recv_delegate));
+            nn_recv_array = (nn_recv_array_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recv"), typeof(nn_recv_array_delegate));
+            nn_errno = (nn_errno_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_errno"), typeof(nn_errno_delegate));
+            nn_close = (nn_close_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_close"), typeof(nn_close_delegate));
+            nn_shutdown = (nn_shutdown_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_shutdown"), typeof(nn_shutdown_delegate));
+            nn_strerror = (nn_strerror_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_strerror"), typeof(nn_strerror_delegate));
+            nn_device = (nn_device_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_device"), typeof(nn_device_delegate));
+            nn_term = (nn_term_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_term"), typeof(nn_term_delegate));
+            nn_setsockopt_string = (nn_setsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_string_delegate));
+            nn_setsockopt_int = (nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_int_delegate));
+            nn_getsockopt = (nn_getsockopt_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_delegate));
+            nn_getsockopt_intptr = (nn_getsockopt_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_intptr_delegate));
+            nn_getsockopt_string = (nn_getsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_string_delegate));
+            nn_allocmsg = (nn_allocmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_allocmsg"), typeof(nn_allocmsg_delegate));
+            nn_freemsg = (nn_freemsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_freemsg"), typeof(nn_freemsg_delegate));
+            nn_sendmsg = (nn_sendmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_sendmsg"), typeof(nn_sendmsg_delegate));
+            nn_recvmsg = (nn_recvmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recvmsg"), typeof(nn_recvmsg_delegate));
+            nn_symbol = (nn_symbol_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_symbol"), typeof(nn_symbol_delegate));
+
+            nn_poll = (nn_poll_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgxAddr, "nn_poll"), typeof(nn_poll_delegate));
+        }
+
 
         public delegate int nn_socket_delegate(int domain, int protocol);
         public static nn_socket_delegate nn_socket;
@@ -194,10 +179,8 @@ namespace NNanomsg
         public delegate int nn_recv_delegate(int s, ref IntPtr buf, int len, int flags);
         public static nn_recv_delegate nn_recv;
 
-        /*
-        public delegate int nn_recv_intptr_delegate(int s, ref IntPtr buf, int len, int flags);
-        public static nn_recv_intptr_delegate nn_recv_intptr;
-        */
+        public delegate int nn_recv_array_delegate(int s, byte[] buf, int len, int flags);
+        public static nn_recv_array_delegate nn_recv_array;
 
         public delegate int nn_errno_delegate();
         public static nn_errno_delegate nn_errno;
@@ -208,8 +191,8 @@ namespace NNanomsg
         public delegate int nn_shutdown_delegate(int s, int how);
         public static nn_shutdown_delegate nn_shutdown;
 
-        // the return value can't be automatically marshalled to a string, as the framework tries to deallocate the pointer, which in this case is a literal
-        // use Marshal.PtrToStringAnsi
+        // the return value can't be automatically marshalled to a string, as the framework tries to deallocate the pointer,
+        // which in this case is a litera. Use Marshal.PtrToStringAnsi
         public delegate IntPtr nn_strerror_delegate(int errnum);
         public static nn_strerror_delegate nn_strerror;
 
@@ -224,7 +207,6 @@ namespace NNanomsg
 
         public delegate int nn_setsockopt_int_delegate(int s, int level, int option, ref int optval, int optvallen);
         public static nn_setsockopt_int_delegate nn_setsockopt_int;
-
 
         public delegate int nn_getsockopt_delegate(int s, int level, int option, ref int optval, ref int optvallen);
         public static nn_getsockopt_delegate nn_getsockopt;
@@ -256,6 +238,5 @@ namespace NNanomsg
 
         public delegate int nn_poll_delegate(int[] s, int slen, int events, int timeout, int[] res);
         public static nn_poll_delegate nn_poll;
-        
     }
 }
