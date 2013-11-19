@@ -311,7 +311,7 @@ namespace NNanomsg
         byte[] Receive(SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
-            int rc = Interop.nn_recv_intptr(_socket, ref buffer, Constants.NN_MSG, (int)flags);
+            int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
 
             if (rc <= 0 || buffer == null)
                 return null;
@@ -368,7 +368,7 @@ namespace NNanomsg
         NanomsgReadStream ReceiveStream(SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
-            int rc = Interop.nn_recv_intptr(_socket, ref buffer, Constants.NN_MSG, (int)flags);
+            int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
 
             if (rc <= 0 || buffer == null)
                 return null;

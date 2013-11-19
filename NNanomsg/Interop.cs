@@ -99,8 +99,10 @@ namespace NNanomsg
             Interop.nn_bind = (Interop.nn_bind_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_bind"), typeof(Interop.nn_bind_delegate));
             Interop.nn_setsockopt_int = (Interop.nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_setsockopt"), typeof(Interop.nn_setsockopt_int_delegate));
             Interop.nn_send = (Interop.nn_send_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_send"), typeof(Interop.nn_send_delegate));
-            Interop.nn_recv = (Interop.nn_recv_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_recv"), typeof(Interop.nn_recv_delegate));
-            Interop.nn_recv_intptr = (Interop.nn_recv_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_recv"), typeof(Interop.nn_recv_intptr_delegate));
+            var recv = lookup(addr, "nn_recv");
+            Console.WriteLine("recv: " + recv);
+            Interop.nn_recv = (Interop.nn_recv_delegate)Marshal.GetDelegateForFunctionPointer(recv, typeof(Interop.nn_recv_delegate));
+            //Interop.nn_recv_intptr = (Interop.nn_recv_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_recv"), typeof(Interop.nn_recv_intptr_delegate));
             Interop.nn_errno = (Interop.nn_errno_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_errno"), typeof(Interop.nn_errno_delegate));
             Interop.nn_close = (Interop.nn_close_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_close"), typeof(Interop.nn_close_delegate));
             Interop.nn_shutdown = (Interop.nn_shutdown_delegate)Marshal.GetDelegateForFunctionPointer(lookup(addr, "nn_shutdown"), typeof(Interop.nn_shutdown_delegate));
@@ -189,11 +191,13 @@ namespace NNanomsg
         public delegate int nn_send_delegate(int s, byte[] buf, int len, int flags);
         public static nn_send_delegate nn_send;
 
-        public delegate int nn_recv_delegate(int s, byte[] buf, int len, int flags);
+        public delegate int nn_recv_delegate(int s, ref IntPtr buf, int len, int flags);
         public static nn_recv_delegate nn_recv;
 
+        /*
         public delegate int nn_recv_intptr_delegate(int s, ref IntPtr buf, int len, int flags);
         public static nn_recv_intptr_delegate nn_recv_intptr;
+        */
 
         public delegate int nn_errno_delegate();
         public static nn_errno_delegate nn_errno;

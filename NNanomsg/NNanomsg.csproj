@@ -80,6 +80,8 @@
     <Content Include="native\x64\libnanomsg.so" />
     <Content Include="native\x64\libnanomsgx.so" />
     <Content Include="native\x86\libnanomsg.so" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="native\x86\libnanomsgx.so" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
