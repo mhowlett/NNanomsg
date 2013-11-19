@@ -52,7 +52,7 @@ namespace NNanomsg
         {
             string value = null;
             int size = 0;
-            int result = Interop.nn_getsockopt(socket, (int)level, (int)opts, ref value, ref size);
+            int result = Interop.nn_getsockopt_string(socket, (int)level, (int)opts, ref value, ref size);
             if (result != 0)
                 throw new NanomsgException(string.Format("nn_getsockopt {0}", opts));
             return value;

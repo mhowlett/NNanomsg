@@ -89,7 +89,7 @@ namespace NNanomsg
         public static int Recv(int s, out byte[] buf, SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
-            int rc = Interop.nn_recv(s, ref buffer, Constants.NN_MSG, (int)flags);
+            int rc = Interop.nn_recv_intptr(s, ref buffer, Constants.NN_MSG, (int)flags);
 
             if (rc < 0)
             {
