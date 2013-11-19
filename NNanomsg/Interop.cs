@@ -99,7 +99,6 @@ namespace NNanomsg
                 if (File.Exists(path))
                 {
                     var addr = dlopen(path, RTLD_NOW);
-                    Console.WriteLine("addr: " + addr);
                     if (addr == IntPtr.Zero)
                     {
                         // Not using NanosmgException because it depends on nn_errno.
