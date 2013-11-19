@@ -30,7 +30,6 @@ NANOMSGX_API void nn_poll(int* s, int slen, int events, int timeout, int* res)
 #endif
     size_t fdsz;
     struct timeval tv;
-    int revents;
 
 	int i;
 

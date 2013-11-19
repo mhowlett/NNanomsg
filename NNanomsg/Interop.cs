@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.IO;
 
 namespace NNanomsg
@@ -68,7 +67,8 @@ namespace NNanomsg
                     var addr = LoadLibrary(path);
                     if (addr == IntPtr.Zero)
                     {
-                        throw new NanomsgException("unable to load " + libFile);
+                        // Not using NanomsgException because it depends on nn_errno.
+                        throw new Exception("LoadLibrary failed: " + path);
                     }
                     symbolLookup = GetProcAddress;
                     return addr;
@@ -95,10 +95,10 @@ namespace NNanomsg
                 if (File.Exists(path))
                 {
                     var addr = dlopen(path, RTLD_NOW);
-                    Trace.Assert(addr != IntPtr.Zero);
                     if (addr == IntPtr.Zero)
                     {
-                        throw new NanomsgException("unable to load " + libFile);
+                        // Not using NanosmgException because it depends on nn_errno.
+                        throw new Exception("dlopen failed: " + path);
                     }
                     symbolLookup = dlsym;
                     return addr;

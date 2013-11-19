@@ -8,10 +8,10 @@ NANOMSG_LIB_PATH=/usr/local/lib
 all: libnanomsgx
 
 libnanomsgx: nanomsgx
-	gcc nanomsgx.o $(NANOMSG_LIB_PATH)/libnanomsg.a -shared -o libnanomsgx.so
+	gcc -shared -Wl,-soname,libnanomsgx.so.1 -o libnanomsgx.so nanomsgx.o $(NANOMSG_LIB_PATH)/libnanomsg.a
 
 nanomsgx: nanomsgx.c nanomsgx.h
-	gcc -I$(NANOMSG_PATH) -Wall -c -fPIC nanomsgx.c -o nanomsgx.o
+	gcc -fPIC -I$(NANOMSG_PATH) -g -c -Wall nanomsgx.c
 
 clean:
 	rm -rf *.o
