@@ -35,6 +35,17 @@ A simple C# example is included in the source distribution and you might also wa
 
 These are a work in progress. 
 
+### Usage
+
+NNanomsg actually exposes API's at three levels of abstraction:
+
+ 1. Static methods in the NN class. These match those of the C API very closely.
+ 2. NanomsgSocket, which adds a fair bit of convenience functionality on top of the NN methods.
+ 3. Protocol classes: PairSocket, PublishSocket, SubscribeSocket etc. which restrict the allowed operations to
+    those apporpriate to the associated socket type.
+
+For most applications, the protocol classes should be used.
+
 
 ### Development Status
 

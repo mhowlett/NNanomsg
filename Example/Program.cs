@@ -1,6 +1,7 @@
 ﻿using System;
 using NNanomsg;
 using System.IO;
+using NNanomsg.Protocols;
 
 namespace Example
 {
@@ -16,7 +17,7 @@ namespace Example
 
             if (args[0] == "client")
             {
-                using (var req = new NanomsgSocket(Domain.SP, Protocol.REQ))
+                using (var req = new RequestSocket())
                 {
                     req.Connect(socketAddress);
                     req.Send(new StringMessage("hello from client").GetBytes());
@@ -27,7 +28,7 @@ namespace Example
             }
             else if (args[0] == "server")
             {
-                using (var rep = new NanomsgSocket(Domain.SP, Protocol.REP))
+                using (var rep = new ReplySocket())
                 {
                     rep.Bind(socketAddress);
                     using (var buf = rep.ReceiveStream())

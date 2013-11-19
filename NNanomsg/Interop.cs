@@ -39,6 +39,9 @@ namespace NNanomsg
         static extern IntPtr dlopen(String fileName, int flags);
 
         [DllImport("libdl.so")]
+        static extern IntPtr dlerror();
+
+        [DllImport("libdl.so")]
         static extern IntPtr dlsym(IntPtr handle, String symbol);
 
 
@@ -58,6 +61,7 @@ namespace NNanomsg
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             foreach (var path in new[] {
+                    Path.Combine(rootDirectory, "native", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile)
                 })
@@ -75,8 +79,7 @@ namespace NNanomsg
                 }
             }
 
-            symbolLookup = null;
-            return IntPtr.Zero;
+            throw new Exception("LoadLibrary failed: unable to locate library " + libFile);
         }
 
         static IntPtr LoadPosixLibrary(string libName, out SymbolLookupDelegate symbolLookup)
@@ -86,6 +89,7 @@ namespace NNanomsg
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             foreach (var path in new [] {
+                    Path.Combine(rootDirectory, "native", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile),
                     Path.Combine("/usr/local/lib", libFile),
@@ -95,18 +99,18 @@ namespace NNanomsg
                 if (File.Exists(path))
                 {
                     var addr = dlopen(path, RTLD_NOW);
+                    Console.WriteLine("addr: " + addr);
                     if (addr == IntPtr.Zero)
                     {
                         // Not using NanosmgException because it depends on nn_errno.
-                        throw new Exception("dlopen failed: " + path);
+                        throw new Exception("dlopen failed: " + path + " : " +  Marshal.PtrToStringAnsi(dlerror()));
                     }
                     symbolLookup = dlsym;
                     return addr;
                 }
             }
 
-            symbolLookup = null;
-            return IntPtr.Zero;
+            throw new Exception("dlopen failed: unable to locate library "  + libFile);
         }
 
         public delegate IntPtr SymbolLookupDelegate(IntPtr addr, string name);

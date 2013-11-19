@@ -2,6 +2,12 @@
 
 # in the case a machine has already been provisioned, running this script shouldn't be a problem.
 
+# quick and dirty test to see if update has been run yet.
+if [ ! -d /opt ]
+  then
+    apt-get update
+fi
+
 apt-get install -y emacs23
 apt-get install -y mono-devel
 apt-get install -y mono-xbuild
@@ -24,14 +30,13 @@ if [ ! -d /opt ]
     mkdir /opt
 fi
 
-# install 0mq library
+# acquire and install nanomsg
 if [ ! -f /usr/local/lib/libnanomsg.a ]
   then
     cd /opt
-    wget http://download.nanomsg.org/nanomsg-0.1-alpha.tar.gz
-    gunzip nanomsg-0.1-alpha.tar.gz
-    tar xvf nanomsg-0.1-alpha.tar
-    cd nanomsg-0.1-alpha
+    wget http://download.nanomsg.org/nanomsg-0.2-alpha.tar.gz
+    tar xvf nanomsg-0.2-alpha.tar.gz
+    cd nanomsg-0.2-alpha
     ./configure
     make
     make install
