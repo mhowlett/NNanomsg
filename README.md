@@ -63,20 +63,8 @@ I've been using this quite a bit over the last week or so in a fairly large proj
 
 ### Building Notes
 
-To build nanomsx, which will be referenced if you try to use the polling functionality, you will need to specify
-the path to the nanomsg source directory as follows:
-
-On Windows, in Visual Studio:
-  1. Select View/Other Windows/Property Manager
-  2. double click Microsoft.Cpp.Win32.user
-  3. Under C/C++ / General, edit "Additional Include Directories"
-  4. Under Linker / General, edit "Additional Library Directories"
-
-On Linux:
-  1. Edit the -I directive in the Makefile to specify the location of the root nanomsg source directory.
-
-I've included a Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the test 
-project.
+A Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the example project 
+is included.
 
 
 ### Primary Contributors
