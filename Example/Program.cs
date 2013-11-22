@@ -26,15 +26,31 @@ namespace Example
                     Console.WriteLine("CLIENT finished");
                 }
             }
+
             else if (args[0] == "server")
             {
                 using (var rep = new ReplySocket())
                 {
                     rep.Bind(socketAddress);
-                    using (var buf = rep.ReceiveStream())
-                        Console.WriteLine("Message from CLIENT: " + new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
-                    rep.Send(new StringMessage("hello from server").GetBytes());
-                    Console.WriteLine("SERVER Finished");
+
+                    var listener = new NanomsgListener();
+                    listener.AddSocket(rep);
+                    listener.ReceivedMessage += socketId =>
+                        {
+                            using (var buf = rep.ReceiveStream())
+                            {
+                                Console.WriteLine(
+                                    "Message from CLIENT: " + 
+                                    new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
+                            }
+
+                            rep.Send(new StringMessage("hello from server").GetBytes());
+
+                            Console.WriteLine("SERVER Finished");
+                            Environment.Exit(0);
+                        };
+                    
+                    listener.Listen(null);
                 }
             }
             else

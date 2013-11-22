@@ -1,17 +1,15 @@
 # nanomsgx makefile
-# Copyright (C) 2011 Matt Howlett <matt dot howlett at gmail dot com>
+# Copyright (C) 2013 Matt Howlett <matt dot howlett at gmail dot com>
 # This file is released under an MIT license, see the LICENSE.txt file.
-
-NANOMSG_PATH=/opt/nanomsg-0.2-alpha/src
-NANOMSG_LIB_PATH=/usr/local/lib
+# -anl
 
 all: libnanomsgx
 
 libnanomsgx: nanomsgx
-	gcc -shared -Wl,-soname,libnanomsgx.so.1 -o libnanomsgx.so nanomsgx.o $(NANOMSG_LIB_PATH)/libnanomsg.a -lanl
+	gcc -shared -Wl,-soname,libnanomsgx.so.1 -o libnanomsgx.so nanomsgx.o
 
 nanomsgx: nanomsgx.c nanomsgx.h
-	gcc -fPIC -I$(NANOMSG_PATH) -g -c -Wall nanomsgx.c
+	gcc -fPIC -g -c -Wall nanomsgx.c
 
 clean:
 	rm -rf *.o

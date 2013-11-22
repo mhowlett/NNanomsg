@@ -136,10 +136,12 @@ namespace NNanomsg
 
         static void InitializeDelegates(IntPtr nanomsgAddr, IntPtr nanomsgxAddr, NanomsgLibraryLoader.SymbolLookupDelegate lookup)
         {
-            // Note: If running under mono and the native nanomsg libraries are in a non-standard location (e.g. under application_dir/x86|x64), 
-            // the standard approach of using [DllImport] attributes does not work. 
+            // When running under mono and the native nanomsg libraries are in a non-standard location (e.g. are placed in application_dir/x86|x64), 
+            // we cannot just load the native libraries and have everything automatically work. Hence all these delegates. I'm unsure of the
+            // relative performance characteristics of the different methods.
 
             nn_socket = (nn_socket_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_socket"), typeof(nn_socket_delegate));
+
             nn_connect = (nn_connect_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_connect"), typeof(nn_connect_delegate));
             nn_bind = (nn_bind_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_bind"), typeof(nn_bind_delegate));
             nn_setsockopt_int = (nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_int_delegate));
@@ -163,13 +165,18 @@ namespace NNanomsg
             nn_recvmsg = (nn_recvmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recvmsg"), typeof(nn_recvmsg_delegate));
             nn_symbol = (nn_symbol_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_symbol"), typeof(nn_symbol_delegate));
 
+            nn_fd_size = (nn_fd_size_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgxAddr, "nn_fd_size"), typeof(nn_fd_size_delegate));
             nn_poll = (nn_poll_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgxAddr, "nn_poll"), typeof(nn_poll_delegate));
         }
-
 
         public delegate int nn_socket_delegate(int domain, int protocol);
         public static nn_socket_delegate nn_socket;
         
+        /*
+        [DllImport("Nanomsgx", CallingConvention = CallingConvention.Cdecl, EntryPoint = "nn_socket_wrap", SetLastError = false)]
+        public static extern int nn_socket(int domain, int protocol);
+        */
+
         public delegate int nn_connect_delegate(int s, [MarshalAs(UnmanagedType.LPStr)]string addr);
         public static nn_connect_delegate nn_connect;
 
@@ -236,10 +243,16 @@ namespace NNanomsg
         public delegate IntPtr nn_symbol_delegate(int i, out int value);
         public static nn_symbol_delegate nn_symbol;
 
-
+        /*
         // -- nanomsgx
+        [DllImport("Nanomsgx", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public extern static int nn_poll(IntPtr s, int slen, int events, int timeout, IntPtr res);
+        */
 
-        public delegate int nn_poll_delegate(int[] s, int slen, int events, int timeout, int[] res);
+        public delegate int nn_poll_delegate(IntPtr rcvfds, int slen, int timeout, IntPtr res);
         public static nn_poll_delegate nn_poll;
+
+        public delegate int nn_fd_size_delegate();
+        public static nn_fd_size_delegate nn_fd_size;
     }
 }

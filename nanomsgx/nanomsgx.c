@@ -1,87 +1,95 @@
-// The nn_poll function below was derived from the getevents method taken from tests/poll.c
-// in the main nanomsg library.
 
 #include "nanomsgx.h"
 
-#include "nn.h"
-#include "../src/utils/err.c"
+#include <stdio.h>
 #include <errno.h>
 
+
 #if defined NN_HAVE_WINDOWS
-#include "../src/utils/win.h"
-#else
-#include <sys/select.h>
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
+#include <windows.h>
+#include <winsock2.h>
+#include <mswsock.h>
+#include <process.h>
+#include <ws2tcpip.h>
+#define ssize_t int
+
+#else
+
+#include <sys/select.h>
+
+#endif
+
 
 #define NN_IN 1
 #define NN_OUT 2
 
-NANOMSGX_API void nn_poll(int* s, int slen, int events, int timeout, int* res)
+
+int nn_fd_size()
+{
+#if defined NN_HAVE_WINDOWS
+	return sizeof(SOCKET);
+#else
+	return sizeof(int);
+#endif
+}
+
+
+void nn_poll(void* rcvfds, int slen, int timeout, int* res)
 {
     int rc;
     fd_set pollset;
 #if defined NN_HAVE_WINDOWS
-    SOCKET* rcvfd = (SOCKET *)malloc(slen * sizeof(SOCKET));
-    SOCKET* sndfd = (SOCKET *)malloc(slen * sizeof(SOCKET));
+    SOCKET* rcvfd = (SOCKET *)rcvfds;
 #else
-    int* rcvfd = (int *)malloc(slen * sizeof(int));
-    int* sndfd = (int *)malloc(slen * sizeof(int));
+    int* rcvfd = (int *)rcvfds;
     int maxfd;
 #endif
-    size_t fdsz;
-    struct timeval tv;
 
+    struct timeval tv;
 	int i;
 
 #if !defined NN_HAVE_WINDOWS
     maxfd = 0;
 #endif
-    FD_ZERO (&pollset);
+    
+	FD_ZERO (&pollset);
 
-    if (events & NN_IN) 
+	for (i=0; i<slen; ++i)
 	{
-		for (i=0; i<slen; ++i)
-		{
-			fdsz = sizeof (rcvfd[i]);
-			rc = nn_getsockopt (s[i], NN_SOL_SOCKET, NN_RCVFD, (char*) &(rcvfd[i]), &fdsz);
-			errno_assert (rc == 0);
-			nn_assert (fdsz == sizeof (rcvfd[i]));
-			FD_SET (rcvfd[i], &pollset);
+		printf("[DEBUG] recvfd: %d\n", rcvfd[i]);
+		FD_SET (rcvfd[i], &pollset);
 #if !defined NN_HAVE_WINDOWS
-			if (rcvfd[i] + 1 > maxfd)
-			{
-				maxfd = rcvfd[i] + 1;
-			}
-#endif
-		}
-    }
-
-    if (events & NN_OUT) 
-	{
-		for (i=0; i<slen; ++i)
+		if (rcvfd[i] + 1 > maxfd)
 		{
-			fdsz = sizeof (sndfd[i]);
-			rc = nn_getsockopt (s[i], NN_SOL_SOCKET, NN_SNDFD, (char*) &(sndfd[i]), &fdsz);
-			errno_assert (rc == 0);
-			nn_assert (fdsz == sizeof (sndfd[i]));
-			FD_SET (sndfd[i], &pollset);
-#if !defined NN_HAVE_WINDOWS
-			if (sndfd[i] + 1 > maxfd)
-			{
-				maxfd = sndfd[i] + 1;
-			}
-#endif
+			maxfd = rcvfd[i] + 1;
 		}
-    }
+#endif
+	}
 
     if (timeout >= 0) 
 	{
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
     }
+
+	printf("[DEBUG] executing select select\n");
+
+	// todo: improve error handling.
 #if defined NN_HAVE_WINDOWS
     rc = select (0, &pollset, NULL, NULL, timeout < 0 ? NULL : &tv);
-    wsa_assert (rc != SOCKET_ERROR);
+	if (rc == SOCKET_ERROR)
+	{
+		// wsa_assert (rc != SOCKET_ERROR);
+		for (i=0; i<slen; ++i)
+		{
+			res[i] = 0;
+		}
+		return;
+	}
 #else
     rc = select (maxfd, &pollset, NULL, NULL, timeout < 0 ? NULL : &tv);
 	if (rc < 0)
@@ -91,28 +99,19 @@ NANOMSGX_API void nn_poll(int* s, int slen, int events, int timeout, int* res)
 		{
 			res[i] = 0;
 		}
-
-		free(rcvfd);
-		free(sndfd);
-
 		return;
 	}
-    //errno_assert (rc >= 0);
 #endif
+
+    printf("[DEBUG] after select\n");
 
 	for (i=0; i<slen; ++i)
 	{
 		res[i] = 0;
-		if ((events & NN_IN) && FD_ISSET (rcvfd[i], &pollset))
+		if (FD_ISSET (rcvfd[i], &pollset))
 		{
 		    res[i] |= NN_IN;
 		}
-		if ((events & NN_OUT) && FD_ISSET (sndfd[i], &pollset))
-		{
-		    res[i] |= NN_OUT;
-		}
 	}
 
-	free(rcvfd);
-	free(sndfd);
 }

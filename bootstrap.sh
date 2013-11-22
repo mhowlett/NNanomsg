@@ -8,7 +8,6 @@ if [ ! -d /opt ]
     apt-get update
 fi
 
-apt-get install -y emacs23
 apt-get install -y mono-devel
 apt-get install -y mono-xbuild
 apt-get install -y g++

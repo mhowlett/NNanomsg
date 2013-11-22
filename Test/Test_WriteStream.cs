@@ -21,7 +21,6 @@ namespace Test
             r.NextBytes(_clientData);
             r.NextBytes(_serverData);
 
-        
             var clientThread = new Thread(
                 () =>
                 {

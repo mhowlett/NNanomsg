@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
 namespace NNanomsg
@@ -143,7 +145,7 @@ namespace NNanomsg
 
         }
 
-        public static int[] Poll(int[] s, Events events, TimeSpan? timeout)
+        public static int[] Poll(int[] s, TimeSpan? timeout)
         {
             int milliseconds = -1;
             if (timeout != null)
@@ -151,10 +153,44 @@ namespace NNanomsg
                 milliseconds = (int)timeout.Value.TotalMilliseconds;
             }
 
-            var res = new int[s.Length];
-            Interop.nn_poll(s, s.Length, (int)events, milliseconds, res);
+            int fdsize = Interop.nn_fd_size();
+            Console.WriteLine("[DEBUG] fdsize: " + fdsize);
 
-            return res;
+            unsafe
+            {
+                var rcvfds = new byte[fdsize*s.Length];
+                fixed (byte* pRcvfds = rcvfds)
+                {
+                    for (int i = 0; i < s.Length; ++i)
+                    {
+                        var recvfdIntPtr = new IntPtr((void*) (pRcvfds + i*fdsize));
+
+                        int recvfdLength = fdsize;
+                        Interop.nn_getsockopt_intptr(s[i], Constants.NN_SOL_SOCKET, (int) SocketOption.RCVFD, ref recvfdIntPtr, ref recvfdLength);
+                        Trace.Assert(recvfdLength == fdsize, "received RCVFD option length unexpected size.");
+
+                        Console.Write("[DEBUG] ");
+                        for (int j = 0; j < rcvfds.Length; ++j)
+                        {
+                            Console.Write(rcvfds[j] + " ");
+                        }
+                        Console.WriteLine();
+                    }
+                }
+
+                var res = new int[s.Length];
+
+                fixed (byte* prcvfds = rcvfds)
+                fixed (int* pRes = res)
+                {
+                    var resIntPtr = new IntPtr((void*) pRes);
+                    var rcvfdsIntPtr = new IntPtr((void*) prcvfds);
+                    Console.WriteLine("[DEBUG] calling poll");
+                    Interop.nn_poll(rcvfdsIntPtr, s.Length, milliseconds, resIntPtr);
+                }
+
+                return res;
+            }
         }
 
         public static string StrError(int errnum)
