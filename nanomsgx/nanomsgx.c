@@ -60,7 +60,6 @@ void nn_poll(void* rcvfds, int slen, int timeout, int* res)
 
 	for (i=0; i<slen; ++i)
 	{
-		printf("[DEBUG] recvfd: %d\n", rcvfd[i]);
 		FD_SET (rcvfd[i], &pollset);
 #if !defined NN_HAVE_WINDOWS
 		if (rcvfd[i] + 1 > maxfd)
@@ -76,14 +75,11 @@ void nn_poll(void* rcvfds, int slen, int timeout, int* res)
         tv.tv_usec = (timeout % 1000) * 1000;
     }
 
-	printf("[DEBUG] executing select select\n");
-
-	// todo: improve error handling.
+	// TODO: improve error handling.
 #if defined NN_HAVE_WINDOWS
     rc = select (0, &pollset, NULL, NULL, timeout < 0 ? NULL : &tv);
 	if (rc == SOCKET_ERROR)
 	{
-		// wsa_assert (rc != SOCKET_ERROR);
 		for (i=0; i<slen; ++i)
 		{
 			res[i] = 0;
@@ -102,8 +98,6 @@ void nn_poll(void* rcvfds, int slen, int timeout, int* res)
 		return;
 	}
 #endif
-
-    printf("[DEBUG] after select\n");
 
 	for (i=0; i<slen; ++i)
 	{

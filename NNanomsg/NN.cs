@@ -154,7 +154,6 @@ namespace NNanomsg
             }
 
             int fdsize = Interop.nn_fd_size();
-            Console.WriteLine("[DEBUG] fdsize: " + fdsize);
 
             unsafe
             {
@@ -166,15 +165,8 @@ namespace NNanomsg
                         var recvfdIntPtr = new IntPtr((void*) (pRcvfds + i*fdsize));
 
                         int recvfdLength = fdsize;
-                        Interop.nn_getsockopt_intptr(s[i], Constants.NN_SOL_SOCKET, (int) SocketOption.RCVFD, ref recvfdIntPtr, ref recvfdLength);
+                        Interop.nn_getsockopt_intptr(s[i], Constants.NN_SOL_SOCKET, (int) SocketOption.RCVFD, recvfdIntPtr, ref recvfdLength);
                         Trace.Assert(recvfdLength == fdsize, "received RCVFD option length unexpected size.");
-
-                        Console.Write("[DEBUG] ");
-                        for (int j = 0; j < rcvfds.Length; ++j)
-                        {
-                            Console.Write(rcvfds[j] + " ");
-                        }
-                        Console.WriteLine();
                     }
                 }
 
@@ -185,7 +177,7 @@ namespace NNanomsg
                 {
                     var resIntPtr = new IntPtr((void*) pRes);
                     var rcvfdsIntPtr = new IntPtr((void*) prcvfds);
-                    Console.WriteLine("[DEBUG] calling poll");
+
                     Interop.nn_poll(rcvfdsIntPtr, s.Length, milliseconds, resIntPtr);
                 }
 

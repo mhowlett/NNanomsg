@@ -71,22 +71,28 @@
     <Compile Include="Protocols\SurveyorSocket.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="native\x64\nanomsg.dll" />
-    <Content Include="native\x64\nanomsgx.dll" />
-    <Content Include="native\x86\nanomsg.dll" />
-    <Content Include="native\x86\nanomsgx.dll" />
+    <Content Include="x64\nanomsg.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\nanomsg.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\nanomsgx.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="native\x64\libnanomsg.so" />
-    <Content Include="native\x64\libnanomsgx.so" />
-    <Content Include="native\x86\libnanomsg.so" />
+    <Content Include="x86\libnanomsg.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="native\x86\libnanomsgx.so" />
+    <Content Include="x86\libnanomsgx.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /i /s /y $(ProjectDir)native\* $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
