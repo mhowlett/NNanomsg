@@ -20,9 +20,22 @@ namespace Example
                 using (var req = new RequestSocket())
                 {
                     req.Connect(socketAddress);
-                    req.Send(new StringMessage("hello from client").GetBytes());
-                    using (var buf = req.ReceiveStream())
-                        Console.WriteLine("Message from SERVER: " + new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
+
+                    using (var ms = new MemoryStream())
+                    {
+                        using (var sw = new StreamWriter(ms))
+                        {
+                            sw.Write("hello from client");
+                        }
+                        req.Send(ms.ToArray());
+                    }
+
+                    using (var ms = new MemoryStream(req.Receive()))
+                    using (var sr = new StreamReader(ms))
+                    {
+                        Console.WriteLine("Message from SERVER: " + sr.ReadToEnd());
+                    }
+
                     Console.WriteLine("CLIENT finished");
                 }
             }
@@ -37,14 +50,20 @@ namespace Example
                     listener.AddSocket(rep);
                     listener.ReceivedMessage += socketId =>
                         {
-                            using (var buf = rep.ReceiveStream())
+                            using (var ms = new MemoryStream(rep.Receive()))
+                            using (var sr = new StreamReader(ms))
                             {
-                                Console.WriteLine(
-                                    "Message from CLIENT: " + 
-                                    new StringMessage(new StreamReader(buf).ReadToEnd()).GetString());
+                                Console.WriteLine("Message from CLIENT: " + sr.ReadToEnd());
                             }
 
-                            rep.Send(new StringMessage("hello from server").GetBytes());
+                            using (var ms = new MemoryStream())
+                            {
+                                using (var sw = new StreamWriter(ms))
+                                {
+                                    sw.Write("hello from server");
+                                }
+                                rep.Send(ms.ToArray());
+                            }
 
                             Console.WriteLine("SERVER Finished");
                             Environment.Exit(0);

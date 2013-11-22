@@ -48,11 +48,15 @@ namespace NNanomsg
         static NanomsgLibraryLoader()
         {
             if (Environment.OSVersion.Platform.ToString().Contains("Win32"))
+            {
                 CustomLoadLibrary = LoadWindowsLibrary;
+            }
             else if (Environment.OSVersion.Platform == PlatformID.Unix ||
-                    Environment.OSVersion.Platform == PlatformID.MacOSX ||
-                    (int)Environment.OSVersion.Platform == 128)
+                     Environment.OSVersion.Platform == PlatformID.MacOSX ||
+                     (int) Environment.OSVersion.Platform == 128)
+            {
                 CustomLoadLibrary = LoadPosixLibrary;
+            }
         }
 
         static IntPtr LoadWindowsLibrary(string libName, out SymbolLookupDelegate symbolLookup)
