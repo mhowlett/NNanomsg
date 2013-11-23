@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Linq;
 
 namespace NNanomsg
 {
@@ -64,11 +65,14 @@ namespace NNanomsg
             string libFile = libName + ".dll";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            foreach (var path in new[] {
-                    Path.Combine(rootDirectory, "native", Environment.Is64BitProcess ? "x64" : "x86", libFile),
+            var paths = new[]
+                {
+                    Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile)
-                })
+                };
+
+            foreach (var path in paths)
             {
                 if (File.Exists(path))
                 {
@@ -83,7 +87,7 @@ namespace NNanomsg
                 }
             }
 
-            throw new Exception("LoadLibrary failed: unable to locate library " + libFile);
+            throw new Exception("LoadLibrary failed: unable to locate library " + libFile + ". Searched: " + paths.Aggregate((a, b) => a + "; " + b));
         }
 
         static IntPtr LoadPosixLibrary(string libName, out SymbolLookupDelegate symbolLookup)
@@ -92,13 +96,16 @@ namespace NNanomsg
             string libFile = "lib" + libName.ToLower() + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            foreach (var path in new [] {
-                    Path.Combine(rootDirectory, "native", Environment.Is64BitProcess ? "x64" : "x86", libFile),
+            var paths = new[]
+                {
+                    Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile),
                     Path.Combine("/usr/local/lib", libFile),
                     Path.Combine("/usr/lib", libFile)
-                })
+                };
+
+            foreach (var path in paths)
             {
                 if (File.Exists(path))
                 {
@@ -113,7 +120,7 @@ namespace NNanomsg
                 }
             }
 
-            throw new Exception("dlopen failed: unable to locate library "  + libFile);
+            throw new Exception("dlopen failed: unable to locate library " + libFile + ". Searched: " + paths.Aggregate((a, b) => a + "; " + b));
         }
 
         public delegate IntPtr SymbolLookupDelegate(IntPtr addr, string name);
