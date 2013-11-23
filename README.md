@@ -40,7 +40,7 @@ These are a work in progress.
 NNanomsg actually exposes API's at three levels of abstraction:
 
  1. Static methods in the NN class. These match those of the C API very closely.
- 2. NanomsgSocket, which adds a fair bit of convenience functionality on top of the NN methods.
+ 2. NanomsgSocket, which provides more convenience functionality than the NN methods.
  3. Protocol classes: PairSocket, PublishSocket, SubscribeSocket etc. which restrict the allowed operations to
     those apporpriate to the associated socket type.
 
@@ -53,12 +53,14 @@ Alpha quality.
 
 Tested against nanomsg version 0.2-alpha only.
 
+We're still debating the best way to structure some functionality and parts of the API will change.
+
 Polling functionality could probably be implemented completely in managed code (thus getting rid of the extra 
 native library) and more properly integrated with the .NET runtime / ThreadPool. Some aspects of this task
 are quite difficult however and the present implementation works well enough for me and I suspect most people.
 
-I've been using this quite a bit over the last week or so in a fairly large project that was previously using
-0mq. Everyhing seems to be running smoothly.
+I've been using this binding quite a bit in a fairly large project that was previously using 0mq. Everyhing
+seems to be running smoothly.
 
 
 ### Building Notes
