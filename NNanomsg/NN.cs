@@ -142,7 +142,6 @@ namespace NNanomsg
         public static void Term()
         {
             Interop.nn_term();
-
         }
 
         public static int[] Poll(int[] s, TimeSpan? timeout)
@@ -150,39 +149,34 @@ namespace NNanomsg
             int milliseconds = -1;
             if (timeout != null)
             {
-                milliseconds = (int)timeout.Value.TotalMilliseconds;
+                milliseconds = (int) timeout.Value.TotalMilliseconds;
+            }
+            else
+            {
+                milliseconds = 0;
             }
 
-            int fdsize = Interop.nn_fd_size();
-
+            var info = new nn_pollfd[s.Length];
             unsafe
             {
-                var rcvfds = new byte[fdsize*s.Length];
-                fixed (byte* pRcvfds = rcvfds)
+                for (int i = 0; i < s.Length; ++i)
                 {
-                    for (int i = 0; i < s.Length; ++i)
-                    {
-                        var recvfdIntPtr = new IntPtr((void*) (pRcvfds + i*fdsize));
-
-                        int recvfdLength = fdsize;
-                        Interop.nn_getsockopt_intptr(s[i], Constants.NN_SOL_SOCKET, (int) SocketOption.RCVFD, recvfdIntPtr, ref recvfdLength);
-                        Trace.Assert(recvfdLength == fdsize, "received RCVFD option length unexpected size.");
-                    }
+                    info[i] = new nn_pollfd {fd = s[i], events = (short)Events.POLLIN, revents = 0};
                 }
 
-                var res = new int[s.Length];
-
-                fixed (byte* prcvfds = rcvfds)
-                fixed (int* pRes = res)
+                fixed (nn_pollfd* pInfo = info)
                 {
-                    var resIntPtr = new IntPtr((void*) pRes);
-                    var rcvfdsIntPtr = new IntPtr((void*) prcvfds);
-
-                    Interop.nn_poll(rcvfdsIntPtr, s.Length, milliseconds, resIntPtr);
+                    Interop.nn_poll(pInfo, s.Length, milliseconds);
                 }
-
-                return res;
             }
+
+            var result = new int[s.Length];
+            for (int i = 0; i < s.Length; ++i)
+            {
+                result[i] = (info[i].revents & (short)Events.POLLIN) != 0 ? 1 : 0;
+            }
+
+            return result;
         }
 
         public static string StrError(int errnum)

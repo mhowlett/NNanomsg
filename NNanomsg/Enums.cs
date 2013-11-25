@@ -105,8 +105,8 @@ namespace NNanomsg
     [Flags]
     public enum Events
     {
-        In = 0x01,
-        Out = 0x02
+        POLLIN = 0x01,
+        POLLOUT = 0x02
     }
 
     public class Constants

@@ -21,6 +21,15 @@ namespace NNanomsg
         public int msg_controllen;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    struct nn_pollfd
+    {
+        public int fd;
+        public short events;
+        public short revents;
+    }
+
+
     /// <summary>
     /// This class can allow platforms to provide a custom method for loading the nanomsg library.
     /// 
@@ -139,13 +148,12 @@ namespace NNanomsg
             {
                 NanomsgLibraryLoader.SymbolLookupDelegate symbolLookup;
                 var nanomsgAddr = NanomsgLibraryLoader.CustomLoadLibrary("Nanomsg", out symbolLookup);
-                var nanomsgxAddr = NanomsgLibraryLoader.CustomLoadLibrary("Nanomsgx", out symbolLookup);
                 
-                InitializeDelegates(nanomsgAddr, nanomsgxAddr, symbolLookup);
+                InitializeDelegates(nanomsgAddr, symbolLookup);
             }
         }
 
-        static void InitializeDelegates(IntPtr nanomsgAddr, IntPtr nanomsgxAddr, NanomsgLibraryLoader.SymbolLookupDelegate lookup)
+        static void InitializeDelegates(IntPtr nanomsgAddr, NanomsgLibraryLoader.SymbolLookupDelegate lookup)
         {
             // When running under mono and the native nanomsg libraries are in a non-standard location (e.g. are placed in application_dir/x86|x64), 
             // we cannot just load the native libraries and have everything automatically work. Hence all these delegates. 
@@ -186,9 +194,7 @@ namespace NNanomsg
             nn_sendmsg = (nn_sendmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_sendmsg"), typeof(nn_sendmsg_delegate));
             nn_recvmsg = (nn_recvmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recvmsg"), typeof(nn_recvmsg_delegate));
             nn_symbol = (nn_symbol_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_symbol"), typeof(nn_symbol_delegate));
-
-            nn_fd_size = (nn_fd_size_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgxAddr, "nn_fd_size"), typeof(nn_fd_size_delegate));
-            nn_poll = (nn_poll_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgxAddr, "nn_poll"), typeof(nn_poll_delegate));
+            nn_poll = (nn_poll_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_poll"), typeof(nn_poll_delegate));
         }
 
         public delegate int nn_socket_delegate(int domain, int protocol);
@@ -260,13 +266,7 @@ namespace NNanomsg
         public delegate IntPtr nn_symbol_delegate(int i, out int value);
         public static nn_symbol_delegate nn_symbol;
 
-
-        // -- nanomsgx
-
-        public delegate int nn_poll_delegate(IntPtr rcvfds, int slen, int timeout, IntPtr res);
+        public delegate void nn_poll_delegate(nn_pollfd* fds, int nfds, int timeout);
         public static nn_poll_delegate nn_poll;
-
-        public delegate int nn_fd_size_delegate();
-        public static nn_fd_size_delegate nn_fd_size;
     }
 }

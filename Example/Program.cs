@@ -68,7 +68,7 @@ namespace Example
                             Console.WriteLine("SERVER Finished");
                             Environment.Exit(0);
                         };
-                    
+
                     listener.Listen(null);
                 }
             }

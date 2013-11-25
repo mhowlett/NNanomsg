@@ -33,9 +33,16 @@ fi
 if [ ! -f /usr/local/lib/libnanomsg.a ]
   then
     cd /opt
-    wget http://download.nanomsg.org/nanomsg-0.2-alpha.tar.gz
-    tar xvf nanomsg-0.2-alpha.tar.gz
-    cd nanomsg-0.2-alpha
+    
+	# wget http://download.nanomsg.org/nanomsg-0.2-alpha.tar.gz
+    # tar xvf nanomsg-0.2-alpha.tar.gz
+    # cd nanomsg-0.2-alpha
+    
+    git clone https://github.com/nanomsg/nanomsg.git
+    cd nanomsg
+    autoreconf --install
+    automake
+    
     ./configure
     make
     make install
