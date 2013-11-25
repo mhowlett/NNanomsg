@@ -153,7 +153,7 @@ namespace NNanomsg
             }
             else
             {
-                milliseconds = 0;
+                milliseconds = int.MaxValue;
             }
 
             var info = new nn_pollfd[s.Length];
