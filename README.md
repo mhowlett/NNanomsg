@@ -31,9 +31,9 @@ Work in progress...
 NNanomsg actually exposes two API's:
 
  1. Static methods in the NN class. These match those of the C API very closely.
- 2. NanomsgSocket and associated classes which provide a higher level and idiomatic .NET interface.
+ 2. NanomsgSocket and associated classes which provide a higher level idiomatic .NET interface.
 
-For most applications, the protocol classes should be used.
+For most applications, the higher level interface should be used.
 
 
 ### Development Status
@@ -44,6 +44,8 @@ We're still debating the best way to structure some functionality and parts of t
 
 NNanomsg now requires a version of nanomsg that provides nn_poll. This is not included in the alpha-0.2 releases - you
 must get master from github, or use one of the binaries provided in this distribution.
+
+Only tested on linux/mono and Windows/Microsoft CLR.
 
 
 ### Building Notes
