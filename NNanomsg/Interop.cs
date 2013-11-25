@@ -184,8 +184,7 @@ namespace NNanomsg
             nn_strerror = (nn_strerror_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_strerror"), typeof(nn_strerror_delegate));
             nn_device = (nn_device_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_device"), typeof(nn_device_delegate));
             nn_term = (nn_term_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_term"), typeof(nn_term_delegate));
-            nn_setsockopt_string = (nn_setsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_string_delegate));
-            nn_setsockopt_int = (nn_setsockopt_int_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_int_delegate));
+            nn_setsockopt = (nn_setsockopt_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_delegate));
             nn_getsockopt = (nn_getsockopt_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_delegate));
             nn_getsockopt_intptr = (nn_getsockopt_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_intptr_delegate));
             nn_getsockopt_string = (nn_getsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_string_delegate));
@@ -235,12 +234,12 @@ namespace NNanomsg
         public delegate void nn_term_delegate();
         public static nn_term_delegate nn_term;
 
-        public delegate int nn_setsockopt_string_delegate(int s, int level, int option, [MarshalAs(UnmanagedType.LPStr)]string optval, int optvallen);
-        public static nn_setsockopt_string_delegate nn_setsockopt_string;
+        // note: I was encountering problems I didn't understand with setsockopt on linux x64. If you make changes here 
+        // (in particular add additional delegates) be sure to test well on that platform.
+        public delegate int nn_setsockopt_delegate(int s, int level, int option, IntPtr optval, int optvallen);
+        public static nn_setsockopt_delegate nn_setsockopt;
 
-        public delegate int nn_setsockopt_int_delegate(int s, int level, int option, ref int optval, int optvallen);
-        public static nn_setsockopt_int_delegate nn_setsockopt_int;
-
+        #region getsockopt
         public delegate int nn_getsockopt_delegate(int s, int level, int option, ref int optval, ref int optvallen);
         public static nn_getsockopt_delegate nn_getsockopt;
 
@@ -249,6 +248,7 @@ namespace NNanomsg
 
         public delegate int nn_getsockopt_string_delegate(int s, int level, int option, [MarshalAs(UnmanagedType.LPStr)] ref string optval, ref int optvallen);
         public static nn_getsockopt_string_delegate nn_getsockopt_string;
+        #endregion
 
         public delegate IntPtr nn_allocmsg_delegate(int size, int type);
         public static nn_allocmsg_delegate nn_allocmsg;

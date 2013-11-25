@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace NNanomsg
 {
@@ -26,9 +27,12 @@ namespace NNanomsg
         public static void SetTimespan(int socket, SocketOptionLevel level, SocketOption opts, TimeSpan? value)
         {
             int v = value.HasValue ? (int)value.Value.TotalMilliseconds : -1, size = sizeof(int);
-            int result = Interop.nn_setsockopt_int(socket, (int)level, (int)opts, ref v, size);
-            if (result != 0)
-                throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+            unsafe
+            {
+                int result = Interop.nn_setsockopt(socket, (int) level, (int) opts, new IntPtr(&v), size);
+                if (result != 0)
+                    throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+            }
         }
 
         public static int GetInt(int socket, SocketOptionLevel level, SocketOption opts)
@@ -43,9 +47,12 @@ namespace NNanomsg
         public static void SetInt(int socket, SocketOptionLevel level, SocketOption opts, int value)
         {
             int v = value, size = sizeof(int);
-            int result = Interop.nn_setsockopt_int(socket, (int)level, (int)opts, ref v, size);
-            if (result != 0)
-                throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+            unsafe
+            {
+                int result = Interop.nn_setsockopt(socket, (int) level, (int) opts, new IntPtr(&v), size);
+                if (result != 0)
+                    throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+            }
         }
 
         public static string GetString(int socket, SocketOptionLevel level, SocketOption opts)
@@ -60,11 +67,16 @@ namespace NNanomsg
 
         public static void SetString(int socket, SocketOptionLevel level, SocketOption opts, string value)
         {
-            string v = value;
-            int size = value.Length;
-            int result = Interop.nn_setsockopt_string(socket, (int)level, (int)opts, v, size);
-            if (result != 0)
-                throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+            unsafe
+            {
+                var bs = Encoding.UTF8.GetBytes(value);
+                fixed (byte* pBs = bs)
+                {
+                    int result = Interop.nn_setsockopt(socket, (int) level, (int) opts, new IntPtr(pBs), bs.Length);
+                    if (result != 0)
+                        throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
+                }
+            }
         }
 
         /// <summary>

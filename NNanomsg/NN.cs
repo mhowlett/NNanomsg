@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace NNanomsg
 {
@@ -25,22 +24,42 @@ namespace NNanomsg
 
         public static int SetSockOpt(int s, SocketOption option, string val)
         {
-            return Interop.nn_setsockopt_string(s, Constants.NN_SOL_SOCKET, (int)option, val, val.Length);
+            unsafe
+            {
+                var bs = Encoding.UTF8.GetBytes(val);
+                fixed (byte* pBs = bs)
+                {
+                    return Interop.nn_setsockopt(s, Constants.NN_SOL_SOCKET, (int) option, new IntPtr(pBs), bs.Length);
+                }
+            }
         }
 
-        public static int SetSockOpt(int s, Protocol level, int option, string val)
+        public static int SetSockOpt(int s, SocketOptionLevel level, SocketOption option, string val)
         {
-            return Interop.nn_setsockopt_string(s, (int)level, option, val, val.Length);
+            unsafe
+            {
+                var bs = Encoding.UTF8.GetBytes(val);
+                fixed (byte* pBs = bs)
+                {
+                    return Interop.nn_setsockopt(s, (int)level, (int)option, new IntPtr(pBs), bs.Length);
+                }
+            }
         }
 
         public static int SetSockOpt(int s, SocketOption option, int val)
         {
-            return Interop.nn_setsockopt_int(s, Constants.NN_SOL_SOCKET, (int)option, ref val, sizeof(int));
+            unsafe
+            {
+                return Interop.nn_setsockopt(s, Constants.NN_SOL_SOCKET, (int) option, new IntPtr(&val), sizeof (int));
+            }
         }
 
-        public static int SetSockOpt(int s, Protocol level, int option, int val)
+        public static int SetSockOpt(int s, SocketOptionLevel level, SocketOption option, int val)
         {
-            return Interop.nn_setsockopt_int(s, (int)level, option, ref val, sizeof(int));
+            unsafe
+            {
+                return Interop.nn_setsockopt(s, (int)level, (int)option, new IntPtr(&val), sizeof(int));
+            }
         }
 
         public static int GetSockOpt(int s, SocketOption option, out int val)
