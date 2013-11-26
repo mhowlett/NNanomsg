@@ -196,76 +196,98 @@ namespace NNanomsg
             nn_poll = (nn_poll_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_poll"), typeof(nn_poll_delegate));
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_socket_delegate(int domain, int protocol);
         public static nn_socket_delegate nn_socket;
-        
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]        
         public delegate int nn_connect_delegate(int s, [MarshalAs(UnmanagedType.LPStr)]string addr);
         public static nn_connect_delegate nn_connect;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_bind_delegate(int s, [MarshalAs(UnmanagedType.LPStr)]string addr);
         public static nn_bind_delegate nn_bind;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_send_delegate(int s, byte[] buf, int len, int flags);
         public static nn_send_delegate nn_send;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_recv_delegate(int s, ref IntPtr buf, int len, int flags);
         public static nn_recv_delegate nn_recv;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_recv_array_delegate(int s, byte[] buf, int len, int flags);
         public static nn_recv_array_delegate nn_recv_array;
-
+        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_errno_delegate();
         public static nn_errno_delegate nn_errno;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_close_delegate(int s);
         public static nn_close_delegate nn_close;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_shutdown_delegate(int s, int how);
         public static nn_shutdown_delegate nn_shutdown;
 
         // the return value can't be automatically marshalled to a string, as the framework tries to deallocate the pointer,
         // which in this case is a litera. Use Marshal.PtrToStringAnsi
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr nn_strerror_delegate(int errnum);
         public static nn_strerror_delegate nn_strerror;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_device_delegate(int s1, int s2);
         public static nn_device_delegate nn_device;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void nn_term_delegate();
         public static nn_term_delegate nn_term;
 
         // note: I was encountering problems I didn't understand with setsockopt on linux x64. If you make changes here 
         // (in particular add additional delegates) be sure to test well on that platform.
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_setsockopt_delegate(int s, int level, int option, IntPtr optval, int optvallen);
         public static nn_setsockopt_delegate nn_setsockopt;
 
         #region getsockopt
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_getsockopt_delegate(int s, int level, int option, ref int optval, ref int optvallen);
         public static nn_getsockopt_delegate nn_getsockopt;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_getsockopt_intptr_delegate(int s, int level, int option, IntPtr optval, ref int optvallen);
         public static nn_getsockopt_intptr_delegate nn_getsockopt_intptr;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_getsockopt_string_delegate(int s, int level, int option, [MarshalAs(UnmanagedType.LPStr)] ref string optval, ref int optvallen);
         public static nn_getsockopt_string_delegate nn_getsockopt_string;
         #endregion
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr nn_allocmsg_delegate(int size, int type);
         public static nn_allocmsg_delegate nn_allocmsg;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_freemsg_delegate(IntPtr msg);
         public static nn_freemsg_delegate nn_freemsg;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_sendmsg_delegate(int s, nn_msghdr* msghdr, int flags);
         public static nn_sendmsg_delegate nn_sendmsg;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_recvmsg_delegate(int s, nn_msghdr* msghdr, int flags);
         public static nn_recvmsg_delegate nn_recvmsg;
 
         //[return: MarshalAs(UnmanagedType.LPStr)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr nn_symbol_delegate(int i, out int value);
         public static nn_symbol_delegate nn_symbol;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void nn_poll_delegate(nn_pollfd* fds, int nfds, int timeout);
         public static nn_poll_delegate nn_poll;
     }
