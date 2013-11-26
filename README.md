@@ -1,10 +1,10 @@
 ## NNanomsg
 
 NNanomsg is a .NET binding for <a href="http://nanomsg.org">nanomsg</a>. It can be used without recompiling
-on any platform where .NET is available. However, at runtime, it needs to be able to locate the native
-nanomsg library for your platform.
+on any platform where .NET is available.
 
-The following paths will be searched (in order) until the native library is found:
+At runtime NNanomsg needs to be able to locate the native nanomsg library for your platform. The following 
+paths are searched (in order) until the native library is found:
 
      Windows:   [Application Directory]\bin\[x86|x64]
                 [Application Directory]\[x86|x64]
@@ -56,5 +56,5 @@ is included.
 
 ### Primary Contributors
 
-  * Matt Howeltt
+  * Matt Howlett
   * Mason Of Words
