@@ -92,6 +92,7 @@ namespace NNanomsg
                         throw new Exception("LoadLibrary failed: " + path);
                     }
                     symbolLookup = GetProcAddress;
+                    NativeLibraryPath = path;
                     return addr;
                 }
             }
@@ -125,6 +126,7 @@ namespace NNanomsg
                         throw new Exception("dlopen failed: " + path + " : " +  Marshal.PtrToStringAnsi(dlerror()));
                     }
                     symbolLookup = dlsym;
+                    NativeLibraryPath = path;
                     return addr;
                 }
             }
@@ -137,6 +139,8 @@ namespace NNanomsg
         public delegate IntPtr LoadLibraryDelegate(string libName, out SymbolLookupDelegate symbolLookup);
         
         public static LoadLibraryDelegate CustomLoadLibrary { get; set; }
+
+        public static string NativeLibraryPath { get; private set; }
     }
 
     [System.Security.SuppressUnmanagedCodeSecurity]
