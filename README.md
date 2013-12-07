@@ -57,4 +57,4 @@ is included.
 ### Primary Contributors
 
   * Matt Howlett
-  * Mason Of Words
+  * Kyle Patrick (MasonOfWords)
