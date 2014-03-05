@@ -38,12 +38,9 @@ For most applications, the higher level interface should be used.
 
 ### Development Status
 
-Alpha quality. 
+Alpha quality. We're still debating the best way to structure some functionality and parts of the API will likely change.
 
-We're still debating the best way to structure some functionality and parts of the API will likely change.
-
-NNanomsg now requires a version of nanomsg that provides nn_poll. This is not included in the alpha-0.2 releases - you
-must get master from github, or use one of the binaries provided in this distribution.
+The current version of NNanomsg requires nanomsg-0.3-beta or greater.
 
 Only tested on linux/mono and Windows/Microsoft CLR.
 
@@ -53,24 +50,26 @@ Only tested on linux/mono and Windows/Microsoft CLR.
 A Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the example project 
 is included.
 
-Procedure used for generating shared libraries: 
+Procedure used for generating shared nanomsg libraries: 
 
 #### Windows x86
 
-cmake.exe . -G "Visual Studio 11"
-then compile in Visual Studio 2012
+     cmake.exe . -G "Visual Studio 11"
+
+then Release build in Visual Studio 2012
 
 #### Windows x64
 
-cmake.exe . -G "Visual Studio 11 Win64"
-then compile in Visual Studio 2012
+     cmake.exe . -G "Visual Studio 11 Win64"
+
+then Release build in Visual Studio 2012
 
 #### Linux x86/x64
 
-autoreconf -fi
-./configure --enable-shared
-make
-make install
+     autoreconf -fi
+     ./configure --enable-shared
+     make
+     make install
 
 .so library is in /usr/local/lib
 
