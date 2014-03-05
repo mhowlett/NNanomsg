@@ -53,6 +53,26 @@ Only tested on linux/mono and Windows/Microsoft CLR.
 A Vagrantfile that builds a VM with nanomsg and mono installed which can be used to run the example project 
 is included.
 
+Procedure used for generating shared libraries: 
+
+#### Windows x86
+
+cmake.exe . -G "Visual Studio 11"
+then compile in Visual Studio 2012
+
+#### Windows x64
+
+cmake.exe . -G "Visual Studio 11 Win64"
+then compile in Visual Studio 2012
+
+#### Linux x86/x64
+
+autoreconf -fi
+./configure --enable-shared
+make
+make install
+
+.so library is in /usr/local/lib
 
 ### Primary Contributors
 
