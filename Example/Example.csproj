@@ -41,8 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Listener.cs" />
+    <Compile Include="Pair.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReqRep.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NNanomsg\NNanomsg.csproj">
