@@ -30,6 +30,7 @@ namespace NNanomsg
         }
 
         public static readonly int
+            NN_NS_NAMESPACE,
             NN_VERSION_CURRENT,
             NN_VERSION_REVISION,
             NN_VERSION_AGE,
