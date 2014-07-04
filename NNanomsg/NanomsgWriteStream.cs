@@ -172,6 +172,14 @@ namespace NNanomsg
             throw new NotImplementedException();
         }
 
+        public override void WriteByte(byte value)
+        {
+            EnsureCapacity();
+            var data = BufferHeader.Data(_current) + (*_current).Used;
+            (*data) = value;
+            ++(*_current).Used;
+        }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             var initialCount = count;
@@ -180,7 +188,7 @@ namespace NNanomsg
                 {
                     int capacity = EnsureCapacity();
                     int toCopy = Math.Min(count, capacity);
-                    MemoryUtils.CopyMemory(src + offset, BufferHeader.Data(_current), toCopy);
+                    MemoryUtils.CopyMemory(src + offset, BufferHeader.Data(_current) + (*_current).Used, toCopy);
                     (*_current).Used += toCopy;
                     count -= toCopy;
                     if (count == 0)
