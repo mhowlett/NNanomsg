@@ -1,6 +1,7 @@
 ﻿using System;
-using NNanomsg;
 using System.IO;
+using System.Linq;
+using NNanomsg;
 using NNanomsg.Protocols;
 
 namespace Example
@@ -9,7 +10,12 @@ namespace Example
     {
         static void PrintUsage()
         {
-            Console.WriteLine("Usage: Example.exe <ReqRep|Pair|Listener> [other params]");
+            Console.WriteLine("Usage: Example.exe <ReqRep|Pair|Listener|Device> [params]");
+            Console.WriteLine();
+            Console.WriteLine("-- Device Example --");
+            Console.WriteLine("The Device Example runs multiple REP workers and multiple REQ workers");
+            Console.WriteLine("in parallel. By default, it responds with \"Hello World\",");
+            Console.WriteLine("but you can specify names by one ore more [params].");
         }
 
         /// <summary>
@@ -23,13 +29,15 @@ namespace Example
                 return;
             }
 
-            switch (args[0])
+            switch (args[0].ToLower())
             {
-                case "ReqRep": ReqRep.Execute(args);
+                case "reqrep": ReqRep.Execute(args);
                     break;
-                case "Pair": Pair.Execute(args);
+                case "pair": Pair.Execute(args);
                     break;
-                case "Listener": Listener.Execute(args);
+                case "listener": Listener.Execute(args);
+                    break;
+                case "device": Device.Execute(args.Skip(1).ToArray());
                     break;
                 default:
                     PrintUsage();

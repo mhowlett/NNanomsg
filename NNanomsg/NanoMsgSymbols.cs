@@ -30,6 +30,29 @@ namespace NNanomsg
         }
 
         public static readonly int
+
+            NN_NS_NAMESPACE,
+            NN_NS_VERSION,
+            NN_NS_DOMAIN,
+            NN_NS_TRANSPORT,
+            NN_NS_PROTOCOL,
+            NN_NS_OPTION_LEVEL,
+            NN_NS_SOCKET_OPTION,
+            NN_NS_TRANSPORT_OPTION,
+            NN_NS_OPTION_TYPE,
+            NN_NS_FLAG,
+            NN_NS_ERROR,
+            NN_NS_LIMIT,
+            NN_TYPE_NONE,
+            NN_TYPE_INT,
+            NN_TYPE_STR,
+            NN_UNIT_NONE,
+            NN_UNIT_BYTES,
+            NN_UNIT_MILLISECONDS,
+            NN_UNIT_PRIORITY,
+            NN_UNIT_BOOLEAN,
+            NN_SOCKET_NAME,
+
             NN_VERSION_CURRENT,
             NN_VERSION_REVISION,
             NN_VERSION_AGE,
