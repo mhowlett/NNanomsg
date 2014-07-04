@@ -9,6 +9,9 @@ paths are searched (in order) until the native library is found:
      Windows:   [Application Directory]\bin\[x86|x64]
                 [Application Directory]\[x86|x64]
                 [Application Directory]
+                [NNanomsg.dll Directory]\bin\[x86|x64]
+                [NNanomsg.dll Directory]\[x86|x64]
+                [NNanomsg.dll Directory]
 
      Posix:     [Application Directory]/bin/[x86|x64]
                 [Application Directory]/[x86|x64]
