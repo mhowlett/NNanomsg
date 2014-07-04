@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Enums.cs" />
     <Compile Include="Interop.cs" />
+    <Compile Include="MemoryUtils.cs" />
     <Compile Include="NanomsgEndpoint.cs" />
     <Compile Include="NanomsgException.cs" />
     <Compile Include="NanomsgSocket.cs" />

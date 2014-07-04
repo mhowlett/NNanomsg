@@ -3,8 +3,6 @@ using System.Net;
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.IO;
 
 namespace NNanomsg
 {
@@ -19,10 +17,10 @@ namespace NNanomsg
         public int SocketID { get { return _socket; } }
 
         int _socket = NullSocket;
-//        INativeDisposer<NanomsgReadStream> _freeReadDisposer;
-//        INativeDisposer<NanomsgWriteStream> _freeWriteDisposer;
-//        NanomsgReadStream _recycledReadStream;
-//        NanomsgWriteStream _recycledWriteStream;
+        INativeDisposer<NanomsgReadStream> _freeReadDisposer;
+        INativeDisposer<NanomsgWriteStream> _freeWriteDisposer;
+        NanomsgReadStream _recycledReadStream;
+        NanomsgWriteStream _recycledWriteStream;
 
         /// <summary>
         /// Initialize a new nanomsg socket for the given domain and protocol
@@ -207,12 +205,9 @@ namespace NNanomsg
         {
             int sentBytes = Interop.nn_send(_socket, buffer, buffer.Length, (int)SendRecvFlags.NONE);
             if (sentBytes < 0)
-            {
-              int error = Interop.nn_errno();
-              throw new NanomsgException("nn_send error " + error + ": " + Interop.nn_strerror(error));
-            }
+                throw new NanomsgException("nn_send");
             else
-              Debug.Assert(sentBytes == buffer.Length);
+                Debug.Assert(sentBytes == buffer.Length);
         }
 
         /// <summary>
@@ -241,7 +236,7 @@ namespace NNanomsg
 
         protected NanomsgWriteStream CreateSendStreamImpl()
         {
-          return new NanomsgWriteStream();
+            return new NanomsgWriteStream((NanomsgSocketBase)this);
         }
 
         protected void SendStreamImpl(NanomsgWriteStream stream)
@@ -253,28 +248,25 @@ namespace NNanomsg
         {
             unsafe
             {
-                stream.Freeze();
-                nn_iovec[] buffers = stream.GetBuffers();
-                int length = buffers.Length;
-
-                nn_iovec* iovec = stackalloc nn_iovec[length];
+                int bufferCount = stream.PageCount;
+                nn_iovec* iovec = stackalloc nn_iovec[bufferCount];
                 nn_msghdr* hdr = stackalloc nn_msghdr[1];
 
-                for (int i = 0; i < length; i++)
+                var buffer = stream.FirstPage();
+                int i = 0;
+                do
                 {
-                  iovec[i].iov_len = buffers[i].iov_len;
-                  iovec[i].iov_base = buffers[i].iov_base;
-                }
+                    iovec[i].iov_len = buffer.Length;
+                    iovec[i].iov_base = (void*)buffer.Buffer;
+                    buffer = stream.NextPage(buffer);
+                } while (buffer.Buffer != IntPtr.Zero && i++ < bufferCount);
 
                 (*hdr).msg_control = null;
                 (*hdr).msg_controllen = 0;
                 (*hdr).msg_iov = iovec;
-                (*hdr).msg_iovlen = length;
+                (*hdr).msg_iovlen = bufferCount;
 
-                int rc = Interop.nn_sendmsg(SocketID, hdr, (int)flags);
-
-                stream.ClearBuffers(free: false); // should have been freed by nn_sendmsg
-                return rc;
+                return Interop.nn_sendmsg(SocketID, hdr, (int)flags);
             }
         }
 
@@ -321,15 +313,8 @@ namespace NNanomsg
             IntPtr buffer = IntPtr.Zero;
             int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
 
-            if (rc <= 0 || buffer == null || buffer == IntPtr.Zero)
-            {
-              if (rc < 0)
-              {
-                int error = Interop.nn_errno();
-                throw new NanomsgException("Receive error " + error + ": " + Interop.nn_strerror(error));
-              }
-              return null;
-            }
+            if (rc <= 0 || buffer == null)
+                return null;
 
             byte[] output = new byte[rc];
             try
@@ -383,14 +368,45 @@ namespace NNanomsg
         NanomsgReadStream ReceiveStream(SendRecvFlags flags)
         {
             IntPtr buffer = IntPtr.Zero;
-            int length = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
+            int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
 
-            if (length <= 0 || buffer == null || buffer == IntPtr.Zero)
+            if (rc <= 0 || buffer == null)
+                return null;
+
+            /*
+             * In order to prevent managed allocations per receive, we attempt to recycle stream objects.  This
+             * will work optimally if the stream is disposed before the next receive call, as in this case each
+             * socket class will always reuse the same stream.
+             * 
+             * Disposing the stream will both release its nanomsg-allocated native buffer and return it to its
+             * socket class for reuse.  
+             */
+
+            var stream = Interlocked.Exchange(ref _recycledReadStream, null);
+
+            if (stream != null)
+                stream.Reinitialize(buffer, rc);
+            else
+                stream = new NanomsgReadStream(buffer, rc,
+                    _freeReadDisposer ?? (_freeReadDisposer = new NanomsgNativeDisposer() { Socket = (NanomsgSocketBase)this }));
+
+            return stream;
+        }
+
+        void RecycleStream(NanomsgReadStream messageStream)
+        {
+            _recycledReadStream = messageStream;
+        }
+
+        class NanomsgNativeDisposer : INativeDisposer<NanomsgReadStream>
+        {
+            public NanomsgSocketBase Socket;
+
+            public void DisposeOf(IntPtr nativeResource, NanomsgReadStream owner)
             {
-              return null;
+                Interop.nn_freemsg(nativeResource);
+                Socket.RecycleStream(owner);
             }
-
-            return new NanomsgReadStream(buffer, length);
         }
 
         ~NanomsgSocketBase()

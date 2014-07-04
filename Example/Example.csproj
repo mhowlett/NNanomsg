@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Device.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="Pair.cs" />
     <Compile Include="Program.cs" />

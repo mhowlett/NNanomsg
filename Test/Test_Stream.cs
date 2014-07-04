@@ -28,7 +28,7 @@ namespace Test
                     {
                         byte[] buffer = new byte[bufferSize];
                         for (int i = 0; i < IterationCount; i++)
-                            using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length))
+                            using (var stream = new NanomsgReadStream((IntPtr)srcptr, src.Length, null))
                             {
                                 int read;
                                 do
@@ -76,7 +76,7 @@ namespace Test
                 Test("writestream", () =>
                     {
                         for (int i = 0; i < IterationCount; i++)
-                            using (var dest = new NanomsgWriteStream())
+                            using (var dest = new NanomsgWriteStream(null))
                                 dest.Write(src, 0, src.Length);
                     });
 
