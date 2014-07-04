@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace NNanomsg
 {
@@ -63,7 +64,7 @@ namespace NNanomsg
             }
             else if (Environment.OSVersion.Platform == PlatformID.Unix ||
                      Environment.OSVersion.Platform == PlatformID.MacOSX ||
-                     (int) Environment.OSVersion.Platform == 128)
+                     (int)Environment.OSVersion.Platform == 128)
             {
                 CustomLoadLibrary = LoadPosixLibrary;
             }
@@ -73,9 +74,14 @@ namespace NNanomsg
         {
             string libFile = libName + ".dll";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);  
 
             var paths = new[]
                 {
+                    Path.Combine(assemblyDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),  
+                    Path.Combine(assemblyDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),  
+                    Path.Combine(assemblyDirectory, libFile),  
+
                     Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile)
@@ -123,7 +129,7 @@ namespace NNanomsg
                     if (addr == IntPtr.Zero)
                     {
                         // Not using NanosmgException because it depends on nn_errno.
-                        throw new Exception("dlopen failed: " + path + " : " +  Marshal.PtrToStringAnsi(dlerror()));
+                        throw new Exception("dlopen failed: " + path + " : " + Marshal.PtrToStringAnsi(dlerror()));
                     }
                     symbolLookup = dlsym;
                     NativeLibraryPath = path;
@@ -137,7 +143,7 @@ namespace NNanomsg
         public delegate IntPtr SymbolLookupDelegate(IntPtr addr, string name);
 
         public delegate IntPtr LoadLibraryDelegate(string libName, out SymbolLookupDelegate symbolLookup);
-        
+
         public static LoadLibraryDelegate CustomLoadLibrary { get; set; }
 
         public static string NativeLibraryPath { get; private set; }
@@ -152,7 +158,7 @@ namespace NNanomsg
             {
                 NanomsgLibraryLoader.SymbolLookupDelegate symbolLookup;
                 var nanomsgAddr = NanomsgLibraryLoader.CustomLoadLibrary("Nanomsg", out symbolLookup);
-                
+
                 InitializeDelegates(nanomsgAddr, symbolLookup);
             }
         }
@@ -204,7 +210,7 @@ namespace NNanomsg
         public delegate int nn_socket_delegate(int domain, int protocol);
         public static nn_socket_delegate nn_socket;
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_connect_delegate(int s, [MarshalAs(UnmanagedType.LPStr)]string addr);
         public static nn_connect_delegate nn_connect;
 
@@ -223,7 +229,7 @@ namespace NNanomsg
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_recv_array_delegate(int s, byte[] buf, int len, int flags);
         public static nn_recv_array_delegate nn_recv_array;
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int nn_errno_delegate();
         public static nn_errno_delegate nn_errno;
