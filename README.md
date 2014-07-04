@@ -76,4 +76,4 @@ then Release build in Visual Studio 2012
 ### Primary Contributors
 
   * Matt Howlett
-  * Kyle Patrick (MasonOfWords)
+  * Kyle Patrick (kwpatrick)
