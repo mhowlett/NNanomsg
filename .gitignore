@@ -18,3 +18,4 @@ Release/
 Debug/
 *.vsp
 *.psess
+packages/
