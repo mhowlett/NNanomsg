@@ -67,12 +67,16 @@ namespace NNanomsg
 
         public static void SetString(int socket, SocketOptionLevel level, SocketOption opts, string value)
         {
+            var bs = Encoding.UTF8.GetBytes(value);
+            SetBytes(socket, level, opts, bs);
+        }
+        public static void SetBytes(int socket, SocketOptionLevel level, SocketOption opts, byte[] bs)
+        {
             unsafe
             {
-                var bs = Encoding.UTF8.GetBytes(value);
                 fixed (byte* pBs = bs)
                 {
-                    int result = Interop.nn_setsockopt(socket, (int) level, (int) opts, new IntPtr(pBs), bs.Length);
+                    int result = Interop.nn_setsockopt(socket, (int)level, (int)opts, new IntPtr(pBs), bs.Length);
                     if (result != 0)
                         throw new NanomsgException(string.Format("nn_setsockopt {0}", opts));
                 }

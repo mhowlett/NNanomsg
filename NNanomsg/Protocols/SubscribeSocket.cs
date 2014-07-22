@@ -10,10 +10,18 @@ namespace NNanomsg.Protocols
         {
             NanomsgSocketOptions.SetString(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_SUBSCRIBE, topic);
         }
+        public void Subscribe(byte[] topic)
+        {
+            NanomsgSocketOptions.SetBytes(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_SUBSCRIBE, topic);
+        }
 
         public void Unsubscribe(string topic)
         {
             NanomsgSocketOptions.SetString(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_SUBSCRIBE, topic);
+        }
+        public void Unsubscribe(byte[] topic)
+        {
+            NanomsgSocketOptions.SetBytes(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_SUBSCRIBE, topic);
         }
 
         #region Connect
