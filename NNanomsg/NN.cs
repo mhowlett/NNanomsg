@@ -165,37 +165,46 @@ namespace NNanomsg
 
         public static int[] Poll(int[] s, TimeSpan? timeout)
         {
+            return Poll(s, s.Length, timeout);
+        }
+
+        public static int[] Poll(int[] s, int ct, TimeSpan? timeout)
+        {
+            var result = new int[ct];
+            nn_pollfd[] pollfd = new nn_pollfd[ct];
+            Poll(s, ct, result, pollfd, timeout);
+            return result;
+        }
+
+        internal static void Poll(int[] s, int ct, int[] result, nn_pollfd[] info, TimeSpan? timeout)
+        {
             int milliseconds = -1;
             if (timeout != null)
             {
-                milliseconds = (int) timeout.Value.TotalMilliseconds;
+                milliseconds = (int)timeout.Value.TotalMilliseconds;
             }
             else
             {
                 milliseconds = int.MaxValue;
             }
 
-            var info = new nn_pollfd[s.Length];
             unsafe
             {
-                for (int i = 0; i < s.Length; ++i)
+                for (int i = 0; i < ct; ++i)
                 {
-                    info[i] = new nn_pollfd {fd = s[i], events = (short)Events.POLLIN, revents = 0};
+                    info[i] = new nn_pollfd { fd = s[i], events = (short)Events.POLLIN, revents = 0 };
                 }
 
                 fixed (nn_pollfd* pInfo = info)
                 {
-                    Interop.nn_poll(pInfo, s.Length, milliseconds);
+                    Interop.nn_poll(pInfo, ct, milliseconds);
                 }
             }
 
-            var result = new int[s.Length];
-            for (int i = 0; i < s.Length; ++i)
+            for (int i = 0; i < ct; ++i)
             {
                 result[i] = (info[i].revents & (short)Events.POLLIN) != 0 ? 1 : 0;
             }
-
-            return result;
         }
 
         public static string StrError(int errnum)

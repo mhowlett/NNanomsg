@@ -8,7 +8,10 @@ namespace NNanomsg
 {
     public class NanomsgListener
     {
-        private int[] _sockets = new int[0];
+        private int[] _sockets = new int[1];
+        private int[] _results = new int[1];
+        private nn_pollfd[] _pollfds = new nn_pollfd[1];
+        private int _ct = 0;
 
         public void AddSocket(NanomsgSocketBase s)
         {
@@ -17,9 +20,22 @@ namespace NNanomsg
 
         public void AddSocket(int s)
         {
-            var sockets = new List<int>(_sockets);
-            sockets.Add(s);
-            _sockets = sockets.ToArray();
+            var cap = _sockets.Length;
+            if (_ct >= cap)
+            {
+                var new_cap = cap * 2;
+                var new_sockets = new int[new_cap];
+                var new_results = new int[new_cap];
+                var new_pollfds = new nn_pollfd[new_cap];
+                Array.Copy(_sockets, new_sockets, _ct);
+                Array.Copy(_results, new_results, _ct);
+                Array.Copy(_pollfds, new_pollfds, _ct);
+                _sockets = new_sockets;
+                _results = new_results;
+                _pollfds = new_pollfds;
+            }
+            _sockets[_ct] = s;
+            ++_ct;
         }
 
         public void RemoveSocket(NanomsgSocketBase s)
@@ -29,9 +45,17 @@ namespace NNanomsg
 
         public void RemoveSocket(int s)
         {
-            var sockets = _sockets.ToList();
-            sockets.Remove(s);
-            _sockets = sockets.ToArray();
+            for (int i = 0; i < _ct; ++i)
+            {
+                if (_sockets[i] == s)
+                {
+                    Array.Copy(_sockets, i + 1, _sockets, i, _ct - i - 1);
+                    Array.Copy(_results, i + 1, _results, i, _ct - i - 1);
+                    Array.Copy(_pollfds, i + 1, _pollfds, i, _ct - i - 1);
+                    --_ct;
+                    break;
+                }
+            }
         }
 
         public delegate void ReceivedDelegate(int socketID);
@@ -41,10 +65,9 @@ namespace NNanomsg
         [HandleProcessCorruptedStateExceptions]
         public void Listen(TimeSpan? timeout)
         {
-            int[] res;
             try
             {
-                res = NN.Poll(_sockets, timeout);
+                 NN.Poll(_sockets, _ct, _results, _pollfds, timeout);
             }
             catch (Exception e)
             {
@@ -53,9 +76,9 @@ namespace NNanomsg
                 return;
             }
 
-            for (int i = 0; i < res.Length; ++i)
+            for (int i = 0; i < _ct; ++i)
             {
-                if (res[i] != 0)
+                if (_results[i] != 0)
                 {
                     if (ReceivedMessage != null)
                     {
