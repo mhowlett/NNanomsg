@@ -78,5 +78,5 @@ then Release build in Visual Studio 2012
 
 ### Primary Contributors
 
-  * Matt Howlett
+  * [Matt Howlett](https://www.matthowlett.com)
   * Kyle Patrick (kwpatrick)
