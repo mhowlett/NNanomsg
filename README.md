@@ -57,15 +57,15 @@ Procedure used for generating shared nanomsg libraries:
 
 #### Windows x86
 
-     cmake.exe . -G "Visual Studio 11"
+     cmake.exe . -G "Visual Studio 12"
 
-then Release build in Visual Studio 2012
+then Release build in Visual Studio 2013
 
 #### Windows x64
 
-     cmake.exe . -G "Visual Studio 11 Win64"
+     cmake.exe . -G "Visual Studio 12 Win64"
 
-then Release build in Visual Studio 2012
+then Release build in Visual Studio 2013
 
 #### Linux x86/x64
 
