@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NNanomsg")]
-[assembly: AssemblyDescription(".NET binding for nanomsg")]
+[assembly: AssemblyTitle("NNanomsg Examples")]
+[assembly: AssemblyDescription(".NET binding for nanomsg examples")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NNanomsg")]
+[assembly: AssemblyProduct("NNanomsg Examples")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
