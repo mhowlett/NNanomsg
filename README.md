@@ -19,15 +19,11 @@ paths are searched (in order) until the native library is found:
                 /usr/local/lib
                 /usr/lib
 
-For convenience, we've included nanomsg binaries for Windows (x86 and x64) and Linux (x86 and x64) in the 
-git repository.
+For convenience, we've included nanomsg binaries for Windows (x86 and x64) and Linux (x86 and x64) in the git repository.
 
 ### Example
 
-A simple C# example is included in the source distribution and you might also want to look at the Test
-project.
-
-Work in progress...
+A simple C# example is included in the source distribution and you might also want to look at the Test project.
 
 ### Usage
 
@@ -79,7 +75,7 @@ then Release build in Visual Studio 2013
 #### NuGet package
 
 1. do a release build of NNanomsg in Visual Studio.
-2. execute the script nugetpkg_make.bat
+2. execute the script nugetpkg_make.bat in the NNanomsg project directory
 3. cd nugetpkg
 4. NuGet.exe pack
 
