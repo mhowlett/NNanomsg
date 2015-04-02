@@ -79,12 +79,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="x64\libnanomsg.so">
+    <Content Include="x64\libnanomsg.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="x86\libnanomsg.so">
+    </Content>
+    <Content Include="x86\libnanomsg.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NNanomsg</id>
+    <version>0.4.1</version>
+    <title>NNanomsg</title>
+    <authors>kwpatrick,math</authors>
+    <owners>kwpatrick,math</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>.NET bindings for the nanomsg library</description>
+    <releaseNotes>Includes nanomsg 0.4 x86/x64 binaries for windows/linux.</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>nanomsg nnanomsg network zeromq</tags>
+  </metadata>
+</package>

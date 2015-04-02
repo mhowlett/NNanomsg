@@ -76,6 +76,14 @@ then Release build in Visual Studio 2013
 
 .so library is in /usr/local/lib
 
+#### NuGet package
+
+1. do a release build of NNanomsg in Visual Studio.
+2. execute the script nugetpkg_make.bat
+3. cd nugetpkg
+4. NuGet.exe pack
+
+
 ### Primary Contributors
 
   * [Matt Howlett](https://www.matthowlett.com)
