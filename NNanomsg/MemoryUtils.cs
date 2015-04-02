@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
 
 namespace NNanomsg
 {
@@ -63,7 +61,7 @@ namespace NNanomsg
             }
         }
 
-        [System.Runtime.InteropServices.DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl, SetLastError = false)]
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         static extern IntPtr memcpy(IntPtr dest, IntPtr src, int count);
 
         public unsafe static void PinAndCopyMemory(byte* src, int srcIndex, byte[] dest, int destIndex, int len)
