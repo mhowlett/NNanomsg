@@ -70,17 +70,32 @@ namespace NNanomsg
             }
         }
 
+        static string calculatexdir(string assemblyPath, string framework, string libFile)
+        {
+            string dir = assemblyPath;
+            if (string.IsNullOrEmpty(dir)) { return null; }
+
+            dir = Path.GetDirectoryName(dir);
+            if (string.IsNullOrEmpty(dir)) { return null; }
+
+            dir = Path.GetDirectoryName(dir);
+            if (string.IsNullOrEmpty(dir)) { return null; }
+
+            return Path.Combine(dir, "content", framework, Environment.Is64BitProcess ? "x64" : "x86", libFile);
+        }
+
         static IntPtr LoadWindowsLibrary(string libName, out SymbolLookupDelegate symbolLookup)
         {
             string libFile = libName + ".dll";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);  
+            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var paths = new[]
                 {
+                    calculatexdir(assemblyDirectory, "net40", libFile),
                     Path.Combine(assemblyDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),  
                     Path.Combine(assemblyDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),  
-                    Path.Combine(assemblyDirectory, libFile),  
+                    Path.Combine(assemblyDirectory, libFile),
 
                     Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
@@ -89,6 +104,11 @@ namespace NNanomsg
 
             foreach (var path in paths)
             {
+                if (path == null)
+                {
+                    continue;
+                }
+
                 if (File.Exists(path))
                 {
                     var addr = LoadLibrary(path);
@@ -111,9 +131,11 @@ namespace NNanomsg
             const int RTLD_NOW = 2;
             string libFile = "lib" + libName.ToLower() + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var paths = new[]
                 {
+                    calculatexdir(assemblyDirectory, "net40", libFile),
                     Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile),
@@ -123,6 +145,11 @@ namespace NNanomsg
 
             foreach (var path in paths)
             {
+                if (path == null)
+                {
+                    continue;
+                }
+
                 if (File.Exists(path))
                 {
                     var addr = dlopen(path, RTLD_NOW);
