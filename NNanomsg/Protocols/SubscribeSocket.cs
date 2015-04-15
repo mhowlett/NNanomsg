@@ -17,11 +17,11 @@ namespace NNanomsg.Protocols
 
         public void Unsubscribe(string topic)
         {
-            NanomsgSocketOptions.SetString(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_SUBSCRIBE, topic);
+            NanomsgSocketOptions.SetString(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_UNSUBSCRIBE, topic);
         }
         public void Unsubscribe(byte[] topic)
         {
-            NanomsgSocketOptions.SetBytes(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_SUBSCRIBE, topic);
+            NanomsgSocketOptions.SetBytes(SocketID, SocketOptionLevel.Subscribe, SocketOption.SUB_UNSUBSCRIBE, topic);
         }
 
         #region Connect
