@@ -313,7 +313,7 @@ namespace NNanomsg
             IntPtr buffer = IntPtr.Zero;
             int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
 
-            if (rc <= 0 || buffer == null)
+            if (rc < 0 || buffer == null)
                 return null;
 
             byte[] output = new byte[rc];
@@ -370,7 +370,7 @@ namespace NNanomsg
             IntPtr buffer = IntPtr.Zero;
             int rc = Interop.nn_recv(_socket, ref buffer, Constants.NN_MSG, (int)flags);
 
-            if (rc <= 0 || buffer == null)
+            if (rc < 0 || buffer == null)
                 return null;
 
             /*
