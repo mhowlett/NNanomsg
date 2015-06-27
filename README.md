@@ -1,5 +1,7 @@
 ## NNanomsg
 
+[![Join the chat at https://gitter.im/mhowlett/NNanomsg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mhowlett/NNanomsg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 NNanomsg is a .NET binding for <a href="http://nanomsg.org">nanomsg</a>. It can be used without recompiling
 on any platform where .NET is available.
 
