@@ -31,6 +31,8 @@ namespace Example
                     break;
                 case "Listener": Listener.Execute(args);
                     break;
+				case "Survey": Survey.Execute(args);
+					break;
                 default:
                     PrintUsage();
                     break;
