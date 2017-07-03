@@ -33,7 +33,9 @@ namespace Example
                     break;
 				case "Survey": Survey.Execute(args);
 					break;
-                default:
+				case "pubsub": PubSub.Execute(args);
+					break;
+				default:
                     PrintUsage();
                     break;
             }

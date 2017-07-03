@@ -45,6 +45,7 @@
     <Compile Include="Pair.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PubSub.cs" />
     <Compile Include="ReqRep.cs" />
     <Compile Include="Survey.cs" />
   </ItemGroup>
