@@ -35,6 +35,8 @@ namespace Example
 					break;
 				case "pubsub": PubSub.Execute(args);
 					break;
+				case "bus": Bus.Execute(args);
+					break;
 				default:
                     PrintUsage();
                     break;

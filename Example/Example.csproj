@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bus.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="Pair.cs" />
     <Compile Include="Program.cs" />
