@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NNanomsg.Protocols;
-using NNanomsg;
+using System.Threading;
 
 namespace Example
 {
@@ -12,23 +12,21 @@ namespace Example
 		public static void Execute(string[] args)
 		{
 			/* Usage: 
-			* start example.exe bus ipc:///bus0 ipc:///bus1 ipc:///bus2 ipc:///bus3
-			* start example.exe bus ipc:///bus1 ipc:///bus0 ipc:///bus2 ipc:///bus3
-			* start example.exe bus ipc:///bus2 ipc:///bus0 ipc:///bus1 ipc:///bus3
-			* start example.exe bus ipc:///bus3 ipc:///bus0 ipc:///bus1 ipc:///bus2
+			* start example.exe bus ipc:///busexample.0 ipc:///busexample.1 ipc:///busexample.2
+			* start example.exe bus ipc:///busexample.1 ipc:///busexample.2
+			* start example.exe bus ipc:///busexample.2
 			*/
 			Console.WriteLine(String.Join(" ", args));
-			using (var send = new BusSocket())
-			using (var receive = new BusSocket())
+			using (var sock = new BusSocket())
 			{
-				send.Bind(args[1]);
+				sock.Bind(args[1]);
 				for (int i = 2; i < args.Length; i++)
 				{
-					receive.Connect(args[i]);
+					sock.Connect(args[i]);
 				}
 				while (true)
 				{
-					byte[] b = receive.ReceiveImmediate();
+					byte[] b = sock.ReceiveImmediate();
 					if (b != null)
 					{
 						Console.WriteLine(Encoding.ASCII.GetString(b));
@@ -36,7 +34,7 @@ namespace Example
 					if (Console.KeyAvailable)
 					{
 						string output = args[1] + ":" + Console.ReadLine();
-						send.Send(Encoding.ASCII.GetBytes(output));
+						sock.Send(Encoding.ASCII.GetBytes(output));
 					}
 				}
 			}
