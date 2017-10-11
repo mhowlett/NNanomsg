@@ -31,7 +31,13 @@ namespace Example
                     break;
                 case "Listener": Listener.Execute(args);
                     break;
-                default:
+				case "Survey": Survey.Execute(args);
+					break;
+				case "pubsub": PubSub.Execute(args);
+					break;
+				case "bus": Bus.Execute(args);
+					break;
+				default:
                     PrintUsage();
                     break;
             }
