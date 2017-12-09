@@ -144,12 +144,12 @@ namespace NNanomsg
 
             var paths = new[]
                 {
-                    Path.Combine("/usr/lib", libFile)
-                    Path.Combine("/usr/local/lib", libFile),
-                    calculatexdir(assemblyDirectory, "net40", libFile),
-                    Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
-                    Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
-                    Path.Combine(rootDirectory, libFile),
+                    "/usr/lib",
+                    "/usr/local/lib",
+                    calculatexdir(assemblyDirectory, "net40"),
+                    Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86"),
+                    Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86"),
+                    rootDirectory,
                 };
 
             foreach (var path in paths)
