@@ -133,14 +133,23 @@ namespace NNanomsg
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+            var libs = new[]
+                {
+                    libFile + ".5",
+                    libFile + ".5.1.0",
+                    libFile + ".5.0.0",
+                    libfile + ".0",
+                    libFile
+                };
+
             var paths = new[]
                 {
+                    Path.Combine("/usr/lib", libFile)
+                    Path.Combine("/usr/local/lib", libFile),
                     calculatexdir(assemblyDirectory, "net40", libFile),
                     Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
                     Path.Combine(rootDirectory, libFile),
-                    Path.Combine("/usr/local/lib", libFile),
-                    Path.Combine("/usr/lib", libFile)
                 };
 
             foreach (var path in paths)
@@ -150,17 +159,26 @@ namespace NNanomsg
                     continue;
                 }
 
-                if (File.Exists(path))
-                {
-                    var addr = dlopen(path, RTLD_NOW);
-                    if (addr == IntPtr.Zero)
+                foreach (var lib in libs) {
+                    if (lib == null)
                     {
-                        // Not using NanosmgException because it depends on nn_errno.
-                        throw new Exception("dlopen failed: " + path + " : " + Marshal.PtrToStringAnsi(dlerror()));
+                        continue;
                     }
-                    symbolLookup = dlsym;
-                    NativeLibraryPath = path;
-                    return addr;
+
+                    string libpath = Path.Combine(path, lib);
+
+                    if (File.Exists(libpath))
+                    {
+                        var addr = dlopen(libpath, RTLD_NOW);
+                        if (addr == IntPtr.Zero)
+                        {
+                            // Not using NanosmgException because it depends on nn_errno.
+                            throw new Exception("dlopen failed: " + path + " : " + Marshal.PtrToStringAnsi(dlerror()));
+                        }
+                        symbolLookup = dlsym;
+                        NativeLibraryPath = path;
+                        return addr;
+                    }
                 }
             }
 
