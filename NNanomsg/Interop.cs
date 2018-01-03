@@ -168,13 +168,15 @@ namespace NNanomsg
 
                     string libpath = Path.Combine(path, lib);
 
+                    Console.WriteLine("Trying library: " + libpath);
+
                     if (File.Exists(libpath))
                     {
                         var addr = dlopen(libpath, RTLD_NOW);
                         if (addr == IntPtr.Zero)
                         {
                             // Not using NanosmgException because it depends on nn_errno.
-                            throw new Exception("dlopen failed: " + path + " : " + Marshal.PtrToStringAnsi(dlerror()));
+                            throw new Exception("dlopen failed: " + libpath + " : " + Marshal.PtrToStringAnsi(dlerror()));
                         }
                         symbolLookup = dlsym;
                         NativeLibraryPath = libpath;
