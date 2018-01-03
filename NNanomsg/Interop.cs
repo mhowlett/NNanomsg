@@ -177,7 +177,7 @@ namespace NNanomsg
                             throw new Exception("dlopen failed: " + path + " : " + Marshal.PtrToStringAnsi(dlerror()));
                         }
                         symbolLookup = dlsym;
-                        NativeLibraryPath = path;
+                        NativeLibraryPath = libpath;
                         return addr;
                     }
                 }
