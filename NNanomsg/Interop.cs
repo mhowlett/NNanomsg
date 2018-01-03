@@ -173,7 +173,7 @@ namespace NNanomsg
                     if (File.Exists(libpath))
                     {
                         Console.WriteLine("Found library: " + libpath);
-                        var addr = dlopen(libpath, RTLD_NOW);
+                        var addr = dlopen(libpath, RTLD_NOW + RTLD_GLOBAL);
                         Console.WriteLine("Library dlopen result: " + addr.ToString("X8"));
                         if (addr == IntPtr.Zero)
                         {
