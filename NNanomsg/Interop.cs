@@ -180,7 +180,7 @@ namespace NNanomsg
                             throw new Exception("dlopen failed: " + libpath + " : " + Marshal.PtrToStringAnsi(dlerror()));
                             return IntPtr.Zero;
                         }
-                        Console.WriteLine("Successful dlopen " + libpath)
+                        Console.WriteLine("Successful dlopen " + libpath);
                         symbolLookup = dlsym;
                         NativeLibraryPath = libpath;
                         return addr;
