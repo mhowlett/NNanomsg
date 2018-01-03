@@ -210,7 +210,9 @@ namespace NNanomsg
                 NanomsgLibraryLoader.SymbolLookupDelegate symbolLookup;
                 var nanomsgAddr = NanomsgLibraryLoader.CustomLoadLibrary("Nanomsg", out symbolLookup);
 
+                Console.WriteLine("Interop: Before InitializeDelegates");
                 InitializeDelegates(nanomsgAddr, symbolLookup);
+                Console.WriteLine("Interop: After InitializeDelegates");
             }
         }
 
@@ -234,27 +236,49 @@ namespace NNanomsg
             // the overhead of calling the delegate.
 
             nn_socket = (nn_socket_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_socket"), typeof(nn_socket_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_socket");
             nn_connect = (nn_connect_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_connect"), typeof(nn_connect_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_connect");
             nn_bind = (nn_bind_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_bind"), typeof(nn_bind_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_bind");
             nn_send = (nn_send_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_send"), typeof(nn_send_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_send");
             nn_recv = (nn_recv_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recv"), typeof(nn_recv_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_recv");
             nn_recv_array = (nn_recv_array_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recv"), typeof(nn_recv_array_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_recv_array");
             nn_errno = (nn_errno_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_errno"), typeof(nn_errno_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_errno");
             nn_close = (nn_close_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_close"), typeof(nn_close_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_close");
             nn_shutdown = (nn_shutdown_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_shutdown"), typeof(nn_shutdown_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_shutdown");
             nn_strerror = (nn_strerror_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_strerror"), typeof(nn_strerror_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_strerror");
             nn_device = (nn_device_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_device"), typeof(nn_device_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_device");
             nn_term = (nn_term_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_term"), typeof(nn_term_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_term");
             nn_setsockopt = (nn_setsockopt_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_setsockopt"), typeof(nn_setsockopt_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_setsockopt");
             nn_getsockopt = (nn_getsockopt_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_getsockopt");
             nn_getsockopt_intptr = (nn_getsockopt_intptr_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_intptr_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_getsockopt_intptr");
             nn_getsockopt_string = (nn_getsockopt_string_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_getsockopt"), typeof(nn_getsockopt_string_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_getsockopt_string");
             nn_allocmsg = (nn_allocmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_allocmsg"), typeof(nn_allocmsg_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_allocmsg");
             nn_freemsg = (nn_freemsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_freemsg"), typeof(nn_freemsg_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_freemsg");
             nn_sendmsg = (nn_sendmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_sendmsg"), typeof(nn_sendmsg_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_sendmsg");
             nn_recvmsg = (nn_recvmsg_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_recvmsg"), typeof(nn_recvmsg_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_recvmsg");
             nn_symbol = (nn_symbol_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_symbol"), typeof(nn_symbol_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_symbol");
             nn_poll = (nn_poll_delegate)Marshal.GetDelegateForFunctionPointer(lookup(nanomsgAddr, "nn_poll"), typeof(nn_poll_delegate));
+            Console.WriteLine("InitializeDelegates: after nn_poll");
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
