@@ -138,15 +138,16 @@ namespace NNanomsg
                     libFile + ".5",
                     libFile + ".5.1.0",
                     libFile + ".5.0.0",
-                    libfile + ".0",
+                    libFile + ".0",
                     libFile
                 };
 
             var paths = new[]
                 {
+                    "/usr/lib" + (Environment.Is64BitProcess ? "64" : "32"),
                     "/usr/lib",
                     "/usr/local/lib",
-                    calculatexdir(assemblyDirectory, "net40"),
+                    Path.Combine(assemblyDirectory, "net40"),
                     Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86"),
                     Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86"),
                     rootDirectory,
