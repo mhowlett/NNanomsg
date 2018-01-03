@@ -129,6 +129,7 @@ namespace NNanomsg
         static IntPtr LoadPosixLibrary(string libName, out SymbolLookupDelegate symbolLookup)
         {
             const int RTLD_NOW = 2;
+            const int RTLD_GLOBAL = 256;
             string libFile = "lib" + libName.ToLower() + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
