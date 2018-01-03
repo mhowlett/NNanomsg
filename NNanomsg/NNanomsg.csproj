@@ -41,10 +41,10 @@
     <Compile Include="MemoryUtils.cs" />
     <Compile Include="NanomsgEndpoint.cs" />
     <Compile Include="NanomsgException.cs" />
-    <Compile Include="NanoMsgSocket.cs" />
+    <Compile Include="NanomsgSocket.cs" />
     <Compile Include="NanomsgSocketBase.cs" />
-    <Compile Include="NanoMsgSocketOptions.cs" />
-    <Compile Include="NanoMsgSymbols.cs" />
+    <Compile Include="NanomsgSocketOptions.cs" />
+    <Compile Include="NanomsgSymbols.cs" />
     <Compile Include="NanomsgReadStream.cs" />
     <Compile Include="NanomsgWriteStream.cs" />
     <Compile Include="NN.cs" />
