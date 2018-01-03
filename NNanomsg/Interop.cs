@@ -46,13 +46,13 @@ namespace NNanomsg
         [DllImport("kernel32.dll")]
         static extern IntPtr GetProcAddress(IntPtr hModule, String procname);
 
-        [DllImport("libdl.so")]
+        [DllImport("__Internal")]
         static extern IntPtr dlopen(String fileName, int flags);
 
-        [DllImport("libdl.so")]
+        [DllImport("__Internal")]
         static extern IntPtr dlerror();
 
-        [DllImport("libdl.so")]
+        [DllImport("__Internal")]
         static extern IntPtr dlsym(IntPtr handle, String symbol);
 
 
@@ -129,18 +129,32 @@ namespace NNanomsg
         static IntPtr LoadPosixLibrary(string libName, out SymbolLookupDelegate symbolLookup)
         {
             const int RTLD_NOW = 2;
+            const int RTLD_GLOBAL = 256;
             string libFile = "lib" + libName.ToLower() + ".so";
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+            var libs = new[]
+                {
+                    libFile + ".5",
+                    libFile + ".5.1.0",
+                    libFile + ".5.0.0",
+                    libFile + ".4.0.0",
+                    libFile + ".3.0.0",
+                    libFile + ".0",
+                    libFile
+                };
+
             var paths = new[]
                 {
-                    calculatexdir(assemblyDirectory, "net40", libFile),
-                    Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86", libFile),
-                    Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86", libFile),
-                    Path.Combine(rootDirectory, libFile),
-                    Path.Combine("/usr/local/lib", libFile),
-                    Path.Combine("/usr/lib", libFile)
+                    "/usr/local/lib" + (Environment.Is64BitProcess ? "64" : "32"),
+                    "/usr/local/lib",
+                    "/usr/lib" + (Environment.Is64BitProcess ? "64" : "32"),
+                    "/usr/lib",
+                    Path.Combine(assemblyDirectory, "net40"),
+                    Path.Combine(rootDirectory, "bin", Environment.Is64BitProcess ? "x64" : "x86"),
+                    Path.Combine(rootDirectory, Environment.Is64BitProcess ? "x64" : "x86"),
+                    rootDirectory,
                 };
 
             foreach (var path in paths)
@@ -150,17 +164,26 @@ namespace NNanomsg
                     continue;
                 }
 
-                if (File.Exists(path))
-                {
-                    var addr = dlopen(path, RTLD_NOW);
-                    if (addr == IntPtr.Zero)
+                foreach (var lib in libs) {
+                    if (lib == null)
                     {
-                        // Not using NanosmgException because it depends on nn_errno.
-                        throw new Exception("dlopen failed: " + path + " : " + Marshal.PtrToStringAnsi(dlerror()));
+                        continue;
                     }
-                    symbolLookup = dlsym;
-                    NativeLibraryPath = path;
-                    return addr;
+
+                    string libpath = Path.Combine(path, lib);
+
+                    if (File.Exists(libpath))
+                    {
+                        var addr = dlopen(libpath, RTLD_NOW + RTLD_GLOBAL);
+                        if (addr == IntPtr.Zero)
+                        {
+                            // Not using NanosmgException because it depends on nn_errno.
+                            throw new Exception("dlopen failed: " + libpath + " : " + Marshal.PtrToStringAnsi(dlerror()));
+                        }
+                        symbolLookup = dlsym;
+                        NativeLibraryPath = libpath;
+                        return addr;
+                    }
                 }
             }
 
