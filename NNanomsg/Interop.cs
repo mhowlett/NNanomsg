@@ -46,13 +46,13 @@ namespace NNanomsg
         [DllImport("kernel32.dll")]
         static extern IntPtr GetProcAddress(IntPtr hModule, String procname);
 
-        [DllImport("libdl.so")]
+        [DllImport("__Internal")]
         static extern IntPtr dlopen(String fileName, int flags);
 
-        [DllImport("libdl.so")]
+        [DllImport("__Internal")]
         static extern IntPtr dlerror();
 
-        [DllImport("libdl.so")]
+        [DllImport("__Internal")]
         static extern IntPtr dlsym(IntPtr handle, String symbol);
 
 
