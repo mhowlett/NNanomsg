@@ -129,7 +129,8 @@ namespace NNanomsg
         static IntPtr LoadPosixLibrary(string libName, out SymbolLookupDelegate symbolLookup)
         {
             const int RTLD_NOW = 2;
-            string libFile = "lib" + libName.ToLower() + ".so";
+            const string libsuffix = (Environment.OSVersion.Platform == PlatformID.MacOSX ? ".dylib" : ".so");
+            string libFile = "lib" + libName.ToLower() + libsuffix;
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
