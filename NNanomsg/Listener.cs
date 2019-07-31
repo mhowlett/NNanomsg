@@ -47,9 +47,9 @@ namespace NNanomsg
             {
                 if (_sockets[i] == s)
                 {
-                    Array.Copy(_sockets, i + 1, _sockets, i, _ct - i - 1);
-                    Array.Copy(_results, i + 1, _results, i, _ct - i - 1);
-                    Array.Copy(_pollfds, i + 1, _pollfds, i, _ct - i - 1);
+                    _sockets[i] = _sockets[_ct];
+                    _results[i] = _results[_ct];
+                    _pollfds[i] = _pollfds[_ct];
                     --_ct;
                     break;
                 }
